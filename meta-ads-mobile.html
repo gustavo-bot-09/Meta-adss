@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Meta Ads</title>
+<meta name="application-name" content="Meta Ads">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Meta Ads">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#07090f">
+<meta name="description" content="Dashboard de tráfego pago — Meta Ads">
+<link rel="manifest" id="pwaManifest">
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#07090f;--sur:#0c0f1a;--card:#101421;
+  --b:rgba(255,255,255,0.07);--bhi:rgba(24,119,242,0.5);
+  --meta:#1877f2;--mdim:rgba(24,119,242,0.13);
+  --grn:#22d07a;--gdim:rgba(34,208,122,0.11);
+  --red:#ff5c5c;--rdim:rgba(255,92,92,0.11);
+  --amb:#ffb740;--adim:rgba(255,183,64,0.11);
+  --pur:#a78bfa;--pdim:rgba(167,139,250,0.11);
+  --t1:#eef2ff;--t2:#6b7fa3;--t3:#2e3d5c;
+  --nh:64px;--mono:'IBM Plex Mono',monospace;--sans:'Epilogue',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--t1);overflow:hidden}
+
+/* AUTH */
+#authWrap{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:24px}
+.logo-ico{width:44px;height:44px;background:var(--meta);border-radius:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 28px rgba(24,119,242,.35)}
+.logo-ico svg{width:24px;height:24px}
+.logo-txt{font-size:22px;font-weight:900;letter-spacing:-.5px}
+.logo-txt em{font-style:normal;color:var(--meta)}
+.acard{background:var(--sur);border:1px solid var(--b);border-radius:16px;padding:20px;width:100%;max-width:380px}
+.atabs{display:flex;background:var(--bg);border-radius:9px;padding:3px;gap:2px;margin-bottom:18px}
+.atab{flex:1;text-align:center;font-family:var(--mono);font-size:9px;padding:7px 2px;border-radius:7px;cursor:pointer;color:var(--t2);transition:all .15s;user-select:none}
+.atab.on{background:var(--meta);color:#fff}
+.aform{display:flex;flex-direction:column;gap:10px}
+.albl{font-family:var(--mono);font-size:9px;letter-spacing:.8px;text-transform:uppercase;color:var(--t2);display:block;margin-bottom:4px}
+.ainp{width:100%;background:var(--card);border:1px solid var(--b);color:var(--t1);font-family:var(--mono);font-size:13px;padding:10px 12px;border-radius:9px;outline:none;transition:border-color .2s}
+.ainp:focus{border-color:var(--bhi)}
+.abtn{width:100%;background:var(--meta);color:#fff;border:none;font-family:var(--sans);font-size:13px;font-weight:700;padding:12px;border-radius:9px;cursor:pointer;box-shadow:0 4px 16px rgba(24,119,242,.3)}
+.abtn.sec{background:var(--card);border:1px solid var(--b);color:var(--t2);box-shadow:none}
+.aerr{background:var(--rdim);border:1px solid rgba(255,92,92,.25);color:var(--red);font-family:var(--mono);font-size:10px;padding:8px 11px;border-radius:8px;display:none}
+.aok{background:var(--gdim);border:1px solid rgba(34,208,122,.25);color:var(--grn);font-family:var(--mono);font-size:10px;padding:8px 11px;border-radius:8px;display:none;white-space:pre-line}
+.afgt{font-family:var(--mono);font-size:9px;color:var(--t2);text-align:right;cursor:pointer;margin-top:-2px}
+.afgt:hover{color:var(--meta)}
+
+/* APP */
+.app{display:none;flex-direction:column;height:100vh;height:100dvh}
+
+/* HEADER */
+header{background:var(--sur);border-bottom:1px solid var(--b);padding:0 14px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:10}
+.hbrand{display:flex;align-items:center;gap:8px}
+.hico{width:28px;height:28px;background:var(--meta);border-radius:7px;display:flex;align-items:center;justify-content:center}
+.hico svg{width:15px;height:15px}
+.htit{font-size:14px;font-weight:800}.htit em{font-style:normal;color:var(--meta)}
+.hr{display:flex;align-items:center;gap:6px}
+.hb{background:var(--card);border:1px solid var(--b);color:var(--t2);font-family:var(--sans);font-size:10px;font-weight:700;padding:5px 8px;border-radius:7px;cursor:pointer;white-space:nowrap}
+.hb.pri{background:var(--meta);color:#fff;border-color:transparent}
+.hb.dan{background:var(--rdim);color:var(--red);border-color:rgba(255,92,92,.2)}
+.hb.api{background:var(--gdim);color:var(--grn);border-color:rgba(34,208,122,.2)}
+.ld{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:9px;color:var(--grn)}
+.ld::before{content:'';width:5px;height:5px;background:var(--grn);border-radius:50%;animation:bl 2s infinite}
+.admbdg{font-family:var(--mono);font-size:8px;background:var(--adim);color:var(--amb);padding:2px 6px;border-radius:20px}
+
+/* API STATUS BAR */
+#apiBar{background:linear-gradient(90deg,rgba(34,208,122,.07),rgba(24,119,242,.07));border-bottom:1px solid rgba(34,208,122,.15);padding:6px 14px;display:none;align-items:center;justify-content:space-between;flex-shrink:0}
+#apiBar.show{display:flex}
+.apidot{width:6px;height:6px;background:var(--grn);border-radius:50%;animation:bl 2s infinite;flex-shrink:0}
+.apibarinf{display:flex;align-items:center;gap:8px}
+.apibartxt{font-family:var(--mono);font-size:9px;color:var(--grn)}
+.apibaracc{font-family:var(--mono);font-size:8px;color:var(--t2)}
+.apisyncbtn{font-family:var(--mono);font-size:9px;background:rgba(34,208,122,.1);color:var(--grn);border:1px solid rgba(34,208,122,.2);padding:3px 10px;border-radius:6px;cursor:pointer}
+
+/* PERIOD BAR */
+.pbar{background:var(--sur);border-bottom:1px solid var(--b);padding:8px 14px;display:flex;align-items:center;gap:6px;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+.pbar::-webkit-scrollbar{display:none}
+.pb{font-family:var(--mono);font-size:9px;padding:5px 11px;border-radius:20px;border:1px solid var(--b);background:transparent;color:var(--t2);cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0}
+.pb.on{background:var(--meta);color:#fff;border-color:var(--meta)}
+
+/* SCROLL */
+.sa{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--nh)+8px)}
+
+/* PAGES */
+.pg{display:none;padding:12px 14px;animation:fu .25s ease both}
+.pg.on{display:block}
+
+/* BOTTOM NAV */
+.bnav{height:var(--nh);background:var(--sur);border-top:1px solid var(--b);display:grid;grid-template-columns:repeat(6,1fr);flex-shrink:0;z-index:10}
+.ni{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;padding:6px 2px;color:var(--t3);transition:color .15s;user-select:none}
+.ni.on{color:var(--meta)}
+.ni svg{width:20px;height:20px}
+.ni span{font-family:var(--mono);font-size:7.5px;text-align:center;line-height:1.1}
+
+/* SECTIONS */
+.stit{font-size:18px;font-weight:900;letter-spacing:-.5px;margin-bottom:3px}
+.stit em{font-style:normal;color:var(--meta)}
+.ssub{font-family:var(--mono);font-size:9px;color:var(--t2);margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+/* KPI */
+.kg{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+.kpi{background:var(--card);border:1px solid var(--b);border-radius:11px;padding:13px}
+.ktop{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.klbl{font-family:var(--mono);font-size:8px;letter-spacing:.7px;text-transform:uppercase;color:var(--t2)}
+.dlt{font-family:var(--mono);font-size:8px;padding:2px 5px;border-radius:20px;font-weight:500}
+.up{background:var(--gdim);color:var(--grn)}.dn{background:var(--rdim);color:var(--red)}.wn{background:var(--adim);color:var(--amb)}
+.kv{font-size:18px;font-weight:900;letter-spacing:-.8px;line-height:1;margin-bottom:2px}
+.kc{font-family:var(--mono);font-size:8px;color:var(--t2);line-height:1.3}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--b);border-radius:11px;padding:14px;margin-bottom:10px}
+.ctit{font-size:13px;font-weight:800;letter-spacing:-.2px;margin-bottom:2px}
+.csub{font-family:var(--mono);font-size:9px;color:var(--t2);margin-bottom:12px}
+.cw{height:170px;position:relative;margin-bottom:4px}
+
+/* ALERT */
+.abox{display:flex;align-items:flex-start;gap:9px;background:rgba(255,183,64,.07);border:1px solid rgba(255,183,64,.2);border-radius:9px;padding:10px 12px;margin-bottom:12px;font-size:11px;color:var(--amb);line-height:1.4}
+.abox svg{width:13px;height:13px;flex-shrink:0;margin-top:1px}
+.ax{margin-left:auto;cursor:pointer;opacity:.6;font-size:11px;flex-shrink:0}
+
+/* FUNNEL */
+.fn{display:flex;flex-direction:column;gap:4px}
+.fs{position:relative;border-radius:8px;overflow:hidden;background:var(--sur);border:1px solid var(--b);padding:9px 12px;display:flex;align-items:center;justify-content:space-between}
+.ff{position:absolute;left:0;top:0;bottom:0;border-radius:8px;opacity:.13;transition:width 1s cubic-bezier(.22,1,.36,1)}
+.fl{font-size:11px;font-weight:700;position:relative;z-index:1}
+.fr{text-align:right;position:relative;z-index:1}
+.fn-num{font-family:var(--mono);font-size:11px;font-weight:500}
+.fn-p{font-family:var(--mono);font-size:8px;color:var(--t2)}
+.fa{font-family:var(--mono);font-size:8px;color:var(--amb);text-align:center;padding:1px 0}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-family:var(--mono);font-size:8px;text-transform:uppercase;letter-spacing:.7px;color:var(--t2);padding:0 6px 8px 0;text-align:left;border-bottom:1px solid var(--b)}
+.tbl td{padding:9px 6px 9px 0;font-size:11px;border-bottom:1px solid var(--b);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.cn{font-weight:700;font-size:11px}.ct{font-family:var(--mono);font-size:8px;color:var(--t2);margin-top:1px}
+.mc{font-family:var(--mono);font-size:10px}
+.sdot{display:inline-block;width:5px;height:5px;border-radius:50%;margin-right:4px}
+.s-on{background:var(--grn);box-shadow:0 0 4px var(--grn)}.s-paus{background:var(--amb)}.s-off{background:var(--t3)}
+.rr{display:flex;align-items:center;gap:5px}
+.rt{flex:1;height:3px;background:var(--b);border-radius:2px;overflow:hidden;min-width:28px}
+.rf{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--meta),var(--pur));transition:width 1s}
+.rv{font-family:var(--mono);font-size:9px;white-space:nowrap}
+
+/* CREATIVES */
+.crl{display:flex;flex-direction:column;gap:8px}
+.crc{background:var(--sur);border:1px solid var(--b);border-radius:9px;padding:11px;display:flex;gap:10px;align-items:center}
+.crth{width:42px;height:42px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px}
+.cri{flex:1;min-width:0}
+.crn{font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crs{display:flex;gap:6px;margin-top:3px;flex-wrap:wrap}
+.cst{font-family:var(--mono);font-size:8px;color:var(--t2)}
+.cst strong{color:var(--t1);font-weight:500}
+.crr{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--meta);flex-shrink:0}
+
+/* AUDIENCES */
+.al{display:flex;flex-direction:column;gap:8px}
+.ac{background:var(--sur);border:1px solid var(--b);border-radius:9px;padding:12px}
+.ach{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px}
+.acn{font-size:12px;font-weight:700}
+.acs{font-family:var(--mono);font-size:8px;color:var(--t2);margin-top:2px}
+.pill{font-family:var(--mono);font-size:8px;padding:2px 7px;border-radius:20px;font-weight:500;flex-shrink:0}
+.p-c{background:var(--mdim);color:var(--meta)}.p-l{background:var(--pdim);color:var(--pur)}.p-i{background:var(--gdim);color:var(--grn)}
+.am{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.amv{text-align:center;background:var(--card);border-radius:7px;padding:7px}
+.amval{font-family:var(--mono);font-size:11px;font-weight:500}
+.amlbl{font-family:var(--mono);font-size:7px;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;margin-top:1px}
+
+/* HEATBARS */
+.hbg{display:flex;flex-direction:column;gap:7px}
+.hbr{display:flex;align-items:center;gap:8px}
+.hbl{font-family:var(--mono);font-size:8px;color:var(--t2);width:80px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hbt{flex:1;height:12px;background:var(--sur);border-radius:3px;overflow:hidden}
+.hbf{height:100%;border-radius:3px;transition:width 1s cubic-bezier(.22,1,.36,1)}
+.hbn{font-family:var(--mono);font-size:8px;color:var(--t2);width:36px;text-align:right;flex-shrink:0}
+
+/* MINI LIST */
+.ml{display:flex;flex-direction:column}
+.mr{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--b);font-size:11px}
+.mr:last-child{border-bottom:none}
+.mrl{display:flex;align-items:center;gap:8px;color:var(--t2)}
+.mri{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px}
+.mrv{font-family:var(--mono);font-size:11px;font-weight:500}
+
+/* REPORTS */
+.rg{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+.rc{background:var(--card);border:1px solid var(--b);border-radius:11px;padding:13px;cursor:pointer}
+.rc:active{border-color:var(--bhi)}
+.ri{font-size:22px;margin-bottom:7px}
+.rn{font-size:11px;font-weight:700;margin-bottom:3px}
+.rd{font-family:var(--mono);font-size:8px;color:var(--t2);line-height:1.4}
+
+/* FREQ ALERT */
+.falt{display:flex;align-items:flex-start;gap:8px;background:var(--rdim);border:1px solid rgba(255,92,92,.25);border-radius:9px;padding:10px 12px;margin-bottom:9px;font-size:11px;color:var(--red);line-height:1.4}
+.falt svg{width:13px;height:13px;flex-shrink:0;margin-top:1px}
+
+/* TAGS */
+.tag{font-family:var(--mono);font-size:8px;padding:1px 6px;border-radius:20px;margin-left:4px;font-weight:500}
+.tag-api{background:var(--gdim);color:var(--grn)}
+.tag-demo{background:var(--pdim);color:var(--pur)}
+.tag-manual{background:var(--adim);color:var(--amb)}
+
+/* ═══ API PAGE ═══ */
+.api-hero{background:linear-gradient(135deg,rgba(24,119,242,.08),rgba(167,139,250,.06));border:1px solid rgba(24,119,242,.15);border-radius:14px;padding:20px;margin-bottom:12px;text-align:center}
+.api-hero-ico{font-size:40px;margin-bottom:10px}
+.api-hero-tit{font-size:16px;font-weight:800;margin-bottom:6px}
+.api-hero-sub{font-family:var(--mono);font-size:9px;color:var(--t2);line-height:1.6}
+.api-steps{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.api-step{display:flex;align-items:flex-start;gap:10px;background:var(--card);border:1px solid var(--b);border-radius:10px;padding:12px}
+.api-sn{width:22px;height:22px;background:var(--mdim);color:var(--meta);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px}
+.api-st{font-size:12px;font-weight:700;margin-bottom:3px}
+.api-sd{font-family:var(--mono);font-size:9px;color:var(--t2);line-height:1.5}
+.api-fg{background:var(--card);border:1px solid var(--b);border-radius:11px;padding:14px;margin-bottom:10px}
+.api-lbl{font-family:var(--mono);font-size:8px;letter-spacing:.8px;text-transform:uppercase;color:var(--t2);margin-bottom:6px;display:block}
+.api-inp{width:100%;background:var(--bg);border:1px solid var(--b);color:var(--t1);font-family:var(--mono);font-size:11px;padding:10px 12px;border-radius:8px;outline:none;transition:border-color .2s}
+.api-inp:focus{border-color:var(--bhi)}
+.api-hint{font-family:var(--mono);font-size:8px;color:var(--t2);margin-top:5px;line-height:1.5}
+.api-cbtn{width:100%;color:#fff;border:none;font-family:var(--sans);font-size:13px;font-weight:700;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s}
+.api-cbtn:active{opacity:.85}
+.api-cbtn.main{background:linear-gradient(90deg,var(--meta),#2d6be4);box-shadow:0 4px 18px rgba(24,119,242,.3)}
+.api-cbtn.demo{background:linear-gradient(90deg,#1e293b,#334155);box-shadow:none}
+.api-disc{width:100%;background:var(--rdim);color:var(--red);border:1px solid rgba(255,92,92,.2);font-family:var(--sans);font-size:12px;font-weight:700;padding:11px;border-radius:10px;cursor:pointer}
+.api-cc{background:linear-gradient(135deg,rgba(34,208,122,.08),rgba(24,119,242,.05));border:1px solid rgba(34,208,122,.2);border-radius:11px;padding:14px;margin-bottom:10px}
+.api-cch{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.api-ccdot{width:8px;height:8px;background:var(--grn);border-radius:50%;animation:bl 2s infinite;flex-shrink:0}
+.api-cctit{font-size:13px;font-weight:800;color:var(--grn)}
+.api-acclist{display:flex;flex-direction:column;gap:6px}
+.api-acc{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--b);border-radius:8px;padding:10px 12px;cursor:pointer;transition:border-color .15s}
+.api-acc.sel{border-color:var(--meta);background:var(--mdim)}
+.api-acc-n{font-size:11px;font-weight:700;margin-bottom:2px}
+.api-acc-id{font-family:var(--mono);font-size:8px;color:var(--t2)}
+.api-acc-chk{color:var(--meta);font-size:14px;display:none}
+.api-acc.sel .api-acc-chk{display:block}
+.api-loading{display:flex;flex-direction:column;align-items:center;padding:28px 20px;gap:12px}
+.spinner{width:28px;height:28px;border:2px solid var(--b);border-top-color:var(--meta);border-radius:50%;animation:spin .8s linear infinite}
+.api-loadtxt{font-family:var(--mono);font-size:10px;color:var(--t2)}
+.api-err{background:var(--rdim);border:1px solid rgba(255,92,92,.2);border-radius:9px;padding:12px;font-family:var(--mono);font-size:10px;color:var(--red);line-height:1.5;margin-bottom:10px;display:none;white-space:pre-line}
+.api-info{background:var(--mdim);border:1px solid rgba(24,119,242,.2);border-radius:9px;padding:12px;font-family:var(--mono);font-size:10px;color:var(--meta);line-height:1.5;margin-bottom:10px}
+
+/* ADMIN */
+.asec{background:rgba(255,183,64,.05);border:1px solid rgba(255,183,64,.2);border-radius:11px;padding:14px;margin-bottom:10px}
+.asect{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--amb);margin-bottom:10px}
+.urow{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--b);font-size:11px}
+.urow:last-child{border-bottom:none}
+.ui{flex:1;min-width:0}
+.ue{font-family:var(--mono);font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ur{font-family:var(--mono);font-size:8px;color:var(--t2);margin-top:1px}
+.delbtn{background:var(--rdim);color:var(--red);border:none;font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:6px;cursor:pointer;flex-shrink:0}
+
+/* MODAL */
+.mover{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.mover.open{display:flex}
+.modal{background:var(--sur);border:1px solid var(--b);border-radius:18px 18px 0 0;padding:20px 16px 32px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;animation:su .25s ease}
+.mhnd{width:36px;height:4px;background:var(--b);border-radius:2px;margin:0 auto 16px}
+.modal h2{font-size:15px;font-weight:800;margin-bottom:2px}
+.msub{font-family:var(--mono);font-size:9px;color:var(--t2);margin-bottom:16px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:4px}
+.fg{display:flex;flex-direction:column;gap:4px}.fg.full{grid-column:1/-1}
+.fg label{font-family:var(--mono);font-size:8px;letter-spacing:.8px;text-transform:uppercase;color:var(--t2)}
+.fg input,.fg select{background:var(--card);border:1px solid var(--b);color:var(--t1);font-family:var(--mono);font-size:12px;padding:9px 11px;border-radius:8px;outline:none;width:100%;transition:border-color .2s}
+.fg input:focus,.fg select:focus{border-color:var(--bhi)}
+.fsec{font-size:10px;font-weight:700;margin:14px 0 8px;padding-top:12px;border-top:1px solid var(--b);color:var(--t2);text-transform:uppercase;letter-spacing:.5px;font-family:var(--mono)}
+.macts{display:flex;gap:8px;margin-top:16px}
+.macts button{flex:1;padding:11px;font-size:12px;border-radius:9px;font-family:var(--sans);font-weight:700;border:none;cursor:pointer}
+.bc{background:var(--card);border:1px solid var(--b)!important;color:var(--t2)}
+.bs{background:var(--grn);color:#07090f}
+
+/* EMPTY */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 20px;color:var(--t2);text-align:center;gap:10px}
+.empty .ei{font-size:36px;opacity:.4}
+.empty p{font-family:var(--mono);font-size:10px;line-height:1.6}
+
+@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes spin{to{transform:rotate(360deg)}}
+::-webkit-scrollbar{width:0}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="authWrap">
+  <div class="logo">
+    <div class="logo-ico"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.879V14.89h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.989C18.343 21.129 22 16.99 22 12c0-5.523-4.477-10-10-10z"/></svg></div>
+    <div class="logo-txt"><em>Meta</em> Ads</div>
+  </div>
+  <div class="acard">
+    <div class="atabs">
+      <div class="atab on" onclick="showTab('login')">Entrar</div>
+      <div class="atab" onclick="showTab('register')">Criar Conta</div>
+      <div class="atab" onclick="showTab('reset')">Redefinir</div>
+    </div>
+    <div id="tab-login" class="aform">
+      <div><label class="albl">E-mail</label><input class="ainp" id="le" type="email" inputmode="email" placeholder="seu@email.com" autocomplete="email"></div>
+      <div><label class="albl">Senha</label><input class="ainp" id="lp" type="password" placeholder="••••••••"><div class="afgt" onclick="showTab('reset')" style="margin-top:6px">Esqueci minha senha →</div></div>
+      <div class="aerr" id="lerr"></div>
+      <button class="abtn" onclick="doLogin()">Entrar</button>
+    </div>
+    <div id="tab-register" class="aform" style="display:none">
+      <div><label class="albl">Nome</label><input class="ainp" id="rn" type="text" placeholder="Seu nome"></div>
+      <div><label class="albl">E-mail</label><input class="ainp" id="re" type="email" inputmode="email" placeholder="seu@email.com"></div>
+      <div><label class="albl">Senha</label><input class="ainp" id="rp" type="password" placeholder="Mín. 6 caracteres"></div>
+      <div><label class="albl">Confirmar</label><input class="ainp" id="rp2" type="password" placeholder="Repita a senha"></div>
+      <div class="aerr" id="rerr"></div><div class="aok" id="rok"></div>
+      <button class="abtn" onclick="doReg()">Criar Conta</button>
+    </div>
+    <div id="tab-reset" class="aform" style="display:none">
+      <p style="font-family:var(--mono);font-size:10px;color:var(--t2);line-height:1.6">Informe seu e-mail para receber uma senha temporária.</p>
+      <div><label class="albl">E-mail</label><input class="ainp" id="rse" type="email" inputmode="email" placeholder="seu@email.com"></div>
+      <div class="aerr" id="rserr"></div><div class="aok" id="rsok"></div>
+      <button class="abtn" onclick="doReset()">Gerar Nova Senha</button>
+      <button class="abtn sec" onclick="showTab('login')" style="margin-top:0">← Voltar</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <header>
+    <div class="hbrand">
+      <div class="hico"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.879V14.89h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.989C18.343 21.129 22 16.99 22 12c0-5.523-4.477-10-10-10z"/></svg></div>
+      <div class="htit"><em>Meta</em> Ads</div>
+    </div>
+    <div class="hr">
+      <span class="ld">ao vivo</span>
+      <span class="admbdg" id="admTag" style="display:none">ADM</span>
+      <button class="hb api" id="apiBtnHdr" style="display:none" onclick="navTo('api',document.getElementById('ni-api'))">⚡ API</button>
+      <button class="hb pri" onclick="openM('mdados')">✏</button>
+      <button class="hb dan" onclick="doLogout()">Sair</button>
+    </div>
+  </header>
+
+  <div id="apiBar">
+    <div class="apibarinf">
+      <div class="apidot"></div>
+      <div><div class="apibartxt">API Meta conectada</div><div class="apibaracc" id="apiBarAcc">—</div></div>
+    </div>
+    <button class="apisyncbtn" onclick="syncNow()">↻ Sync</button>
+  </div>
+
+  <div class="pbar">
+    <button class="pb" onclick="setPer(1,this)">Hoje</button>
+    <button class="pb" onclick="setPer(7,this)">7 dias</button>
+    <button class="pb on" onclick="setPer(14,this)">14 dias</button>
+    <button class="pb" onclick="setPer(30,this)">30 dias</button>
+    <button class="pb" onclick="setPer(0,this)">Máximo</button>
+  </div>
+
+  <div class="sa">
+
+    <!-- VISÃO GERAL -->
+    <div id="pg-geral" class="pg on">
+      <div class="stit">Visão <em>Geral</em></div>
+      <div class="ssub" id="ssub">Tráfego Pago · 14 dias <span class="ld">sync</span></div>
+      <div class="abox" id="alertBar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>Conecte a <strong>API Meta</strong> (aba ⚡) ou insira dados em <strong>✏</strong>.</span>
+        <span class="ax" onclick="this.parentElement.style.display='none'">✕</span>
+      </div>
+      <div class="kg">
+        <div class="kpi"><div class="ktop"><span class="klbl">Investimento</span><span class="dlt wn" id="d-inv">—</span></div><div class="kv" id="kv-inv">R$ —</div><div class="kc" id="kc-inv">Insira dados</div></div>
+        <div class="kpi"><div class="ktop"><span class="klbl">Receita</span><span class="dlt up" id="d-rec">—</span></div><div class="kv" id="kv-rec">R$ —</div><div class="kc">Receita atribuída</div></div>
+        <div class="kpi"><div class="ktop"><span class="klbl">ROAS</span><span class="dlt up" id="d-roas">—</span></div><div class="kv" id="kv-roas">—</div><div class="kc" id="kc-roas">Meta: —</div></div>
+        <div class="kpi"><div class="ktop"><span class="klbl">CPA</span><span class="dlt up" id="d-cpa">—</span></div><div class="kv" id="kv-cpa">R$ —</div><div class="kc">Custo/compra</div></div>
+        <div class="kpi"><div class="ktop"><span class="klbl">CTR</span><span class="dlt" id="d-ctr">—</span></div><div class="kv" id="kv-ctr">—%</div><div class="kc">Benchmark 2.5%</div></div>
+        <div class="kpi"><div class="ktop"><span class="klbl">CPM</span><span class="dlt" id="d-cpm">—</span></div><div class="kv" id="kv-cpm">R$ —</div><div class="kc">Custo/mil imp.</div></div>
+      </div>
+      <div class="card">
+        <div class="ctit">Receita × Investimento <span id="csrc"></span></div>
+        <div class="csub" id="clbl">Evolução — 14 dias</div>
+        <div class="cw"><canvas id="RC"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="ctit">Funil de Vendas</div><div class="csub">Impressão → Compra</div>
+        <div class="fn">
+          <div class="fs"><div class="ff" style="background:var(--meta);width:100%"></div><span class="fl">👁 Impressões</span><div class="fr"><div class="fn-num" id="fi">—</div><div class="fn-p">100%</div></div></div>
+          <div class="fa" id="fctr">↓ CTR —%</div>
+          <div class="fs"><div class="ff" style="background:var(--pur);width:0%" id="ffc"></div><span class="fl">🖱 Cliques</span><div class="fr"><div class="fn-num" id="fcl">—</div><div class="fn-p" id="fcl-p">—</div></div></div>
+          <div class="fa" id="fatc">↓ ATC —%</div>
+          <div class="fs"><div class="ff" style="background:var(--amb);width:0%" id="ffa"></div><span class="fl">🛒 Add to Cart</span><div class="fr"><div class="fn-num" id="fca">—</div><div class="fn-p" id="fca-p">—</div></div></div>
+          <div class="fa" id="fconv">↓ Conv —%</div>
+          <div class="fs"><div class="ff" style="background:var(--grn);width:0%" id="ffp"></div><span class="fl">✅ Compras</span><div class="fr"><div class="fn-num" id="fco">—</div><div class="fn-p" id="fco-p">—</div></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ctit">Métricas de Entrega</div><div class="csub">Período selecionado</div>
+        <div class="ml">
+          <div class="mr"><div class="mrl"><div class="mri" style="background:var(--mdim)">👁</div>Impressões</div><div class="mrv" id="mi-imp">—</div></div>
+          <div class="mr"><div class="mrl"><div class="mri" style="background:var(--pdim)">🖱</div>Cliques</div><div class="mrv" id="mi-cli">—</div></div>
+          <div class="mr"><div class="mrl"><div class="mri" style="background:var(--gdim)">✅</div>Compras</div><div class="mrv" id="mi-com">—</div></div>
+          <div class="mr"><div class="mrl"><div class="mri" style="background:var(--adim)">🔁</div>Frequência</div><div class="mrv" id="mi-freq">—</div></div>
+          <div class="mr"><div class="mrl"><div class="mri" style="background:var(--rdim)">💰</div>CPM</div><div class="mrv" id="mi-cpm">—</div></div>
+          <div class="mr"><div class="mrl"><div class="mri" style="background:var(--mdim)">📡</div>Alcance</div><div class="mrv" id="mi-alc">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAMPANHAS -->
+    <div id="pg-camp" class="pg">
+      <div class="stit">Cam<em>panhas</em></div><div class="ssub">Tráfego Pago</div>
+      <button onclick="openM('mcampanha')" style="width:100%;padding:10px;border-radius:9px;font-size:12px;margin-bottom:12px;background:var(--meta);color:#fff;border:none;font-family:var(--sans);font-weight:700;cursor:pointer">+ Adicionar Manual</button>
+      <div class="card" style="padding:12px"><div style="overflow-x:auto">
+        <table class="tbl"><thead><tr><th>Campanha</th><th>CPA</th><th>ROAS</th></tr></thead>
+        <tbody id="campBody"><tr><td colspan="3"><div class="empty"><div class="ei">📋</div><p>Nenhuma campanha.</p></div></td></tr></tbody></table>
+      </div></div>
+    </div>
+
+    <!-- CRIATIVOS -->
+    <div id="pg-criat" class="pg">
+      <div class="stit">Cria<em>tivos</em></div><div class="ssub">Ordenados por ROAS</div>
+      <button onclick="openM('mcriativo')" style="width:100%;padding:10px;border-radius:9px;font-size:12px;margin-bottom:12px;background:var(--meta);color:#fff;border:none;font-family:var(--sans);font-weight:700;cursor:pointer">+ Adicionar Manual</button>
+      <div class="crl" id="crList"><div class="empty"><div class="ei">🎨</div><p>Nenhum criativo.</p></div></div>
+    </div>
+
+    <!-- PÚBLICOS -->
+    <div id="pg-pub" class="pg">
+      <div class="stit">Pú<em>blicos</em></div><div class="ssub">Segmentação</div>
+      <button onclick="openM('mpublico')" style="width:100%;padding:10px;border-radius:9px;font-size:12px;margin-bottom:12px;background:var(--meta);color:#fff;border:none;font-family:var(--sans);font-weight:700;cursor:pointer">+ Adicionar Manual</button>
+      <div class="al" id="audList"><div class="empty"><div class="ei">👥</div><p>Nenhum público.</p></div></div>
+    </div>
+
+    <!-- RELATÓRIOS -->
+    <div id="pg-rel" class="pg">
+      <div class="stit">Rela<em>tórios</em></div><div class="ssub">Exportações</div>
+      <div class="rg">
+        <div class="rc" onclick="expCSV()"><div class="ri">📊</div><div class="rn">Campanhas CSV</div><div class="rd">Com métricas</div></div>
+        <div class="rc" onclick="expFunil()"><div class="ri">🔽</div><div class="rn">Funil TXT</div><div class="rd">Taxas de conversão</div></div>
+        <div class="rc" onclick="expCriat()"><div class="ri">🎬</div><div class="rn">Criativos CSV</div><div class="rd">Performance</div></div>
+        <div class="rc" onclick="expPub()"><div class="ri">👥</div><div class="rn">Públicos CSV</div><div class="rd">Comparativo</div></div>
+        <div class="rc" onclick="window.print()" style="grid-column:1/-1"><div class="ri">🖨</div><div class="rn">Imprimir / PDF</div><div class="rd">Salva via navegador</div></div>
+      </div>
+      <div class="card"><div class="ctit">Resumo do Período</div><div class="csub" id="rel-per">—</div><div id="rel-body"><div class="empty"><div class="ei">📄</div><p>Insira dados para gerar.</p></div></div></div>
+      <div class="card"><div class="ctit">Atribuição</div><div class="csub">Compras por janela</div><div class="cw" style="height:150px"><canvas id="AC"></canvas></div>
+        <div class="ml" style="margin-top:8px">
+          <div class="mr"><div class="mrl"><div class="mri" style="background:var(--mdim)">🖱</div>Clique 1d</div><div class="mrv" id="at-c1d">—</div></div>
+          <div class="mr"><div class="mrl"><div class="mri" style="background:var(--pdim)">🖱</div>Clique 7d</div><div class="mrv" id="at-c7d">—</div></div>
+          <div class="mr"><div class="mrl"><div class="mri" style="background:var(--gdim)">👁</div>Visual. 1d</div><div class="mrv" id="at-v1d">—</div></div>
+          <div class="mr"><div class="mrl"><div class="mri" style="background:var(--adim)">📦</div>Ticket Médio</div><div class="mrv" id="at-tk">—</div></div>
+        </div>
+      </div>
+      <div class="card"><div class="ctit">Frequência</div><div class="csub">Monitor por campanha</div><div id="freqAlerts"></div><div class="hbg" id="freqBars"><div class="empty"><div class="ei">📡</div><p>Adicione campanhas.</p></div></div></div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         API META ADS PAGE
+    ═══════════════════════════════ -->
+    <div id="pg-api" class="pg">
+      <div class="stit">API <em>Meta Ads</em></div>
+      <div class="ssub">Dados automáticos em tempo real</div>
+
+      <!-- CONNECTED STATE -->
+      <div id="apiConn" style="display:none">
+        <div class="api-cc">
+          <div class="api-cch"><div class="api-ccdot"></div><div class="api-cctit">Conectado ao Meta Ads</div></div>
+          <div class="ml">
+            <div class="mr"><div class="mrl"><div class="mri" style="background:var(--mdim)">🏢</div>Conta</div><div class="mrv" id="apiAccNm" style="font-size:10px">—</div></div>
+            <div class="mr"><div class="mrl"><div class="mri" style="background:var(--gdim)">🔑</div>Token</div><div class="mrv" style="color:var(--grn)">Ativo ✓</div></div>
+            <div class="mr"><div class="mrl"><div class="mri" style="background:var(--adim)">🕐</div>Última Sync</div><div class="mrv" id="apiLS">—</div></div>
+          </div>
+        </div>
+
+        <button class="api-cbtn main" onclick="syncNow()"><span>↻</span> Sincronizar Agora</button>
+        <div id="apiSyncWrap" style="display:none"><div class="api-loading"><div class="spinner"></div><div class="api-loadtxt" id="apiSyncTxt">Buscando dados...</div></div></div>
+        <div class="api-err" id="apiSyncErr"></div>
+
+        <div class="card">
+          <div class="ctit">Contas de Anúncio</div>
+          <div class="csub">Selecione a conta ativa para sincronizar</div>
+          <div class="api-acclist" id="apiAccList"><div class="empty"><div class="ei">📋</div><p>Carregando contas...</p></div></div>
+        </div>
+
+        <div style="margin-top:4px">
+          <button class="api-disc" onclick="disconnectAPI()">🔌 Desconectar API</button>
+        </div>
+      </div>
+
+      <!-- SETUP STATE -->
+      <div id="apiSetup">
+        <div class="api-hero">
+          <div class="api-hero-ico">⚡</div>
+          <div class="api-hero-tit">Conecte sua conta Meta Ads</div>
+          <div class="api-hero-sub">Puxe métricas reais automaticamente: investimento, receita, ROAS, campanhas, criativos — direto do Gerenciador de Anúncios, sem precisar inserir dados manualmente.</div>
+        </div>
+
+        <div class="api-steps">
+          <div class="api-step">
+            <div class="api-sn">1</div>
+            <div>
+              <div class="api-st">Criar App no Meta Developers</div>
+              <div class="api-sd">Acesse <strong style="color:var(--meta)">developers.facebook.com</strong> → Meus Apps → Criar App → Tipo: <strong>Negócios</strong>. Anote o App ID.</div>
+            </div>
+          </div>
+          <div class="api-step">
+            <div class="api-sn">2</div>
+            <div>
+              <div class="api-st">Gerar Access Token no Explorer</div>
+              <div class="api-sd">Acesse <strong style="color:var(--meta)">developers.facebook.com/tools/explorer</strong> → selecione seu App → adicione permissões <strong>ads_read</strong> e <strong>ads_management</strong> → clique em <strong>Gerar Token de Acesso</strong>.</div>
+            </div>
+          </div>
+          <div class="api-step">
+            <div class="api-sn">3</div>
+            <div>
+              <div class="api-st">Cole o token abaixo e conecte</div>
+              <div class="api-sd">Tokens do Explorer duram ~1h. Para uso prolongado, troque por um token de longa duração (60 dias) via endpoint <strong>oauth/access_token</strong>.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="api-info">💡 <strong>Privacidade:</strong> O token é salvo <em>apenas no seu dispositivo</em> (localStorage). Nunca trafega para servidores externos.</div>
+
+        <div class="api-fg">
+          <label class="api-lbl">Access Token do Meta</label>
+          <input type="text" class="api-inp" id="apiTokInp" placeholder="EAAxxxxxxxxxxxxxx..." autocomplete="off" spellcheck="false" style="font-size:10px">
+          <div class="api-hint">Gere em <strong>developers.facebook.com/tools/explorer</strong> com permissões ads_read + ads_management</div>
+        </div>
+
+        <div class="api-err" id="apiConnErr"></div>
+
+        <button class="api-cbtn main" id="apiConnBtn" onclick="connectAPI()">
+          <span>🔗</span> Conectar à API Meta Ads
+        </button>
+        <button class="api-cbtn demo" onclick="demoMode()">
+          <span>🧪</span> Modo Demo — dados simulados
+        </button>
+      </div>
+
+      <!-- PWA INSTALL CARD -->
+      <div class="card" id="pwaCard" style="margin-top:4px">
+        <div class="ctit">📲 Instalar como App</div>
+        <div class="csub">Adicionar à tela inicial do celular</div>
+        <div id="pwaInstallWrap" style="display:none">
+          <p style="font-family:var(--mono);font-size:10px;color:var(--t2);line-height:1.6;margin-bottom:12px">Instale o dashboard como app nativo — funciona sem barra do navegador, igual a um app da loja.</p>
+          <button class="api-cbtn main" style="margin-bottom:0" onclick="pwaTriggerInstall()"><span>📲</span> Instalar App Agora</button>
+        </div>
+        <div id="pwaIOSWrap" style="display:none">
+          <p style="font-family:var(--mono);font-size:10px;color:var(--t2);line-height:1.7;margin-bottom:12px">No <strong style="color:var(--t1)">Safari</strong>, siga os passos:</p>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;gap:10px;background:var(--sur);border:1px solid var(--b);border-radius:9px;padding:10px 12px"><span style="font-size:20px;flex-shrink:0">1️⃣</span><span style="font-family:var(--mono);font-size:10px;color:var(--t2);line-height:1.5">Toque em <strong style="color:var(--t1)">Compartilhar</strong> ⬆ na barra inferior do Safari</span></div>
+            <div style="display:flex;align-items:center;gap:10px;background:var(--sur);border:1px solid var(--b);border-radius:9px;padding:10px 12px"><span style="font-size:20px;flex-shrink:0">2️⃣</span><span style="font-family:var(--mono);font-size:10px;color:var(--t2);line-height:1.5">Role e toque em <strong style="color:var(--t1)">"Adicionar à Tela de Início"</strong></span></div>
+            <div style="display:flex;align-items:center;gap:10px;background:var(--sur);border:1px solid var(--b);border-radius:9px;padding:10px 12px"><span style="font-size:20px;flex-shrink:0">3️⃣</span><span style="font-family:var(--mono);font-size:10px;color:var(--t2);line-height:1.5">Confirme o nome <strong style="color:var(--t1)">"Meta Ads"</strong> e toque em <strong style="color:var(--t1)">Adicionar</strong></span></div>
+          </div>
+        </div>
+        <div id="pwaInstalledWrap" style="display:none">
+          <div style="display:flex;align-items:center;gap:10px;background:var(--gdim);border:1px solid rgba(34,208,122,.2);border-radius:10px;padding:12px">
+            <span style="font-size:24px">✅</span>
+            <div><div style="font-size:12px;font-weight:700;color:var(--grn);margin-bottom:2px">App instalado!</div><div style="font-family:var(--mono);font-size:9px;color:var(--t2)">Meta Ads está na sua tela inicial.</div></div>
+          </div>
+        </div>
+        <div id="pwaGenericWrap">
+          <!-- Android file:// specific instructions -->
+          <div id="pwaAndroidFileWrap" style="display:none">
+            <div style="background:var(--rdim);border:1px solid rgba(255,92,92,.2);border-radius:9px;padding:11px 13px;font-family:var(--mono);font-size:10px;color:var(--red);line-height:1.6;margin-bottom:12px">
+              ⚠ Arquivo local detectado — o Chrome exige <strong>HTTPS</strong> para instalar PWA. Escolha uma das opções abaixo.
+            </div>
+            <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Opção 1 — Mais fácil</div>
+            <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px">
+              <div style="display:flex;align-items:flex-start;gap:10px;background:var(--sur);border:1px solid var(--b);border-radius:9px;padding:11px 12px">
+                <span style="font-size:18px;flex-shrink:0">1️⃣</span>
+                <span style="font-family:var(--mono);font-size:10px;color:var(--t2);line-height:1.6">Acesse <strong style="color:var(--meta)">github.com</strong> no celular → crie conta gratuita (ou faça login)</span>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:10px;background:var(--sur);border:1px solid var(--b);border-radius:9px;padding:11px 12px">
+                <span style="font-size:18px;flex-shrink:0">2️⃣</span>
+                <span style="font-family:var(--mono);font-size:10px;color:var(--t2);line-height:1.6">Crie um repositório público → clique em <strong style="color:var(--t1)">Add file → Upload files</strong> → envie o <strong style="color:var(--t1)">meta-ads-mobile.html</strong> → renomeie para <strong style="color:var(--t1)">index.html</strong></span>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:10px;background:var(--sur);border:1px solid var(--b);border-radius:9px;padding:11px 12px">
+                <span style="font-size:18px;flex-shrink:0">3️⃣</span>
+                <span style="font-family:var(--mono);font-size:10px;color:var(--t2);line-height:1.6">Vá em <strong style="color:var(--t1)">Settings → Pages → Branch: main → Save</strong>. Aguarde ~1 min.</span>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:10px;background:var(--sur);border:1px solid var(--b);border-radius:9px;padding:11px 12px">
+                <span style="font-size:18px;flex-shrink:0">4️⃣</span>
+                <span style="font-family:var(--mono);font-size:10px;color:var(--t2);line-height:1.6">Abra a URL <strong style="color:var(--grn)">seu-usuario.github.io/repositorio</strong> no Chrome → ícone <strong style="color:var(--t1)">⊕</strong> aparece na barra → instale!</span>
+              </div>
+            </div>
+            <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Opção 2 — Via PC</div>
+            <div style="display:flex;flex-direction:column;gap:7px">
+              <div style="display:flex;align-items:flex-start;gap:10px;background:var(--sur);border:1px solid var(--b);border-radius:9px;padding:11px 12px">
+                <span style="font-size:18px;flex-shrink:0">1️⃣</span>
+                <span style="font-family:var(--mono);font-size:10px;color:var(--t2);line-height:1.6">No PC, abra o terminal na pasta do arquivo e rode: <strong style="color:var(--grn);font-size:9px">npx serve .</strong> (precisa do Node.js) — ou use o VS Code com a extensão <strong style="color:var(--t1)">Live Server</strong></span>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:10px;background:var(--sur);border:1px solid var(--b);border-radius:9px;padding:11px 12px">
+                <span style="font-size:18px;flex-shrink:0">2️⃣</span>
+                <span style="font-family:var(--mono);font-size:10px;color:var(--t2);line-height:1.6">Conecte o celular na mesma rede Wi-Fi → acesse <strong style="color:var(--grn)">http://IP-do-PC:3000</strong> no Chrome</span>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:10px;background:var(--sur);border:1px solid var(--b);border-radius:9px;padding:11px 12px">
+                <span style="font-size:18px;flex-shrink:0">3️⃣</span>
+                <span style="font-family:var(--mono);font-size:10px;color:var(--t2);line-height:1.6">No Chrome: <strong style="color:var(--t1)">⋮ → Adicionar à tela inicial</strong> → o app instala normalmente</span>
+              </div>
+            </div>
+          </div>
+          <!-- Standard fallback -->
+          <div id="pwaStandardWrap">
+            <p style="font-family:var(--mono);font-size:10px;color:var(--t2);line-height:1.6;margin-bottom:10px">Abra este arquivo no <strong style="color:var(--t1)">Chrome</strong> (Android) ou <strong style="color:var(--t1)">Safari</strong> (iPhone) para instalar.</p>
+            <div style="background:var(--mdim);border:1px solid rgba(24,119,242,.2);border-radius:9px;padding:11px;font-family:var(--mono);font-size:9px;color:var(--meta);line-height:1.6">💡 No Chrome: procure o ícone <strong>⊕</strong> na barra de endereço ou <strong>⋮ → Adicionar à tela inicial</strong>.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ADMIN -->
+    <div id="pg-adm" class="pg">
+      <div class="stit">Painel <em>ADM</em></div><div class="ssub">Gerenciamento de usuários</div>
+      <div class="asec"><div class="asect">⚙ Usuários Cadastrados</div><div id="userList"><div class="empty"><div class="ei">👤</div><p>Nenhum usuário além do ADM.</p></div></div></div>
+      <div class="asec">
+        <div class="asect">📊 Estatísticas</div>
+        <div class="ml">
+          <div class="mr"><div class="mrl"><div class="mri" style="background:var(--mdim)">👥</div>Total Usuários</div><div class="mrv" id="stat-u">—</div></div>
+          <div class="mr"><div class="mrl"><div class="mri" style="background:var(--adim)">📅</div>Hoje</div><div class="mrv" id="stat-d">—</div></div>
+        </div>
+      </div>
+      <button onclick="if(confirm('Apagar TODOS os dados?'))limparTudo()" style="width:100%;padding:11px;border-radius:9px;font-size:12px;background:var(--rdim);color:var(--red);border:1px solid rgba(255,92,92,.2);font-family:var(--sans);font-weight:700;cursor:pointer">🗑 Limpar Todos os Dados</button>
+    </div>
+
+  </div><!-- sa -->
+
+  <!-- BOTTOM NAV -->
+  <nav class="bnav">
+    <div class="ni on" onclick="navTo('geral',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span>Geral</span></div>
+    <div class="ni" onclick="navTo('camp',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Campanhas</span></div>
+    <div class="ni" onclick="navTo('criat',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg><span>Criativos</span></div>
+    <div class="ni" onclick="navTo('pub',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Públicos</span></div>
+    <div class="ni" id="ni-api" onclick="navTo('api',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg><span>API</span></div>
+    <div class="ni" id="ni-adm" style="display:none" onclick="navTo('adm',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>ADM</span></div>
+  </nav>
+</div>
+
+<!-- ═══ MODAIS ═══ -->
+<div class="mover" id="mdados">
+  <div class="modal">
+    <div class="mhnd"></div>
+    <h2>✏ Dados Manuais</h2><div class="msub" id="mper">Período: 14 dias</div>
+    <div class="fsec">🏢 Conta</div>
+    <div class="fgrid"><div class="fg"><label>Empresa</label><input id="ie" type="text" placeholder="Loja Prime"></div><div class="fg"><label>ID Conta</label><input id="iid" type="text" placeholder="act_0000"></div></div>
+    <div class="fsec">💰 KPIs</div>
+    <div class="fgrid">
+      <div class="fg"><label>Investimento R$</label><input id="iinv" type="number" inputmode="decimal" placeholder="24830"></div>
+      <div class="fg"><label>Receita R$</label><input id="irec" type="number" inputmode="decimal" placeholder="118460"></div>
+      <div class="fg"><label>CPA R$</label><input id="icpa" type="number" inputmode="decimal" placeholder="38.50"></div>
+      <div class="fg"><label>Meta ROAS</label><input id="imroas" type="number" inputmode="decimal" placeholder="4.0" step="0.1"></div>
+      <div class="fg"><label>CTR %</label><input id="ictr" type="number" inputmode="decimal" placeholder="2.84"></div>
+      <div class="fg"><label>CPM R$</label><input id="icpm" type="number" inputmode="decimal" placeholder="20.02"></div>
+    </div>
+    <div class="fsec">📊 Funil</div>
+    <div class="fgrid">
+      <div class="fg"><label>Impressões</label><input id="iimp" type="number" inputmode="numeric" placeholder="1240000"></div>
+      <div class="fg"><label>Cliques</label><input id="icli" type="number" inputmode="numeric" placeholder="35216"></div>
+      <div class="fg"><label>Add to Cart</label><input id="iatc" type="number" inputmode="numeric" placeholder="6364"></div>
+      <div class="fg"><label>Compras</label><input id="icom" type="number" inputmode="numeric" placeholder="645"></div>
+      <div class="fg"><label>Alcance</label><input id="ialc" type="number" inputmode="numeric" placeholder="480000"></div>
+      <div class="fg"><label>Frequência</label><input id="ifreq" type="number" inputmode="decimal" placeholder="2.7" step="0.1"></div>
+    </div>
+    <div class="fsec">📅 Atribuição</div>
+    <div class="fgrid">
+      <div class="fg"><label>Clique 1d</label><input id="ic1d" type="number" inputmode="numeric" placeholder="210"></div>
+      <div class="fg"><label>Clique 7d</label><input id="ic7d" type="number" inputmode="numeric" placeholder="380"></div>
+      <div class="fg"><label>Visual. 1d</label><input id="iv1d" type="number" inputmode="numeric" placeholder="55"></div>
+      <div class="fg"><label>Ticket Médio R$</label><input id="itk" type="number" inputmode="decimal" placeholder="183.65"></div>
+    </div>
+    <div class="macts"><button class="bc" onclick="closeM('mdados')">Cancelar</button><button class="bs" onclick="saveData()">✓ Salvar</button></div>
+  </div>
+</div>
+
+<div class="mover" id="mcampanha">
+  <div class="modal">
+    <div class="mhnd"></div><h2>📋 Nova Campanha</h2><div class="msub">Inserção manual</div>
+    <div class="fgrid">
+      <div class="fg full"><label>Nome</label><input id="cn" type="text" placeholder="Prospecting — LAL 2%"></div>
+      <div class="fg full"><label>Tipo</label><input id="ct" type="text" placeholder="Conversões · Feed"></div>
+      <div class="fg"><label>Status</label><select id="cs"><option value="on">Ativo</option><option value="paus">Atenção</option><option value="off">Pausado</option></select></div>
+      <div class="fg"><label>Invest. R$</label><input id="cinv" type="number" inputmode="decimal" placeholder="9400"></div>
+      <div class="fg"><label>CPA R$</label><input id="ccpa" type="number" inputmode="decimal" placeholder="32.10"></div>
+      <div class="fg"><label>ROAS</label><input id="croas" type="number" inputmode="decimal" placeholder="5.6" step="0.1"></div>
+      <div class="fg"><label>Frequência</label><input id="cfreq" type="number" inputmode="decimal" placeholder="2.1" step="0.1"></div>
+    </div>
+    <div class="macts"><button class="bc" onclick="closeM('mcampanha')">Cancelar</button><button class="bs" onclick="addCamp()">✓ Adicionar</button></div>
+  </div>
+</div>
+
+<div class="mover" id="mcriativo">
+  <div class="modal">
+    <div class="mhnd"></div><h2>🎨 Novo Criativo</h2><div class="msub">Inserção manual</div>
+    <div class="fgrid">
+      <div class="fg full"><label>Nome</label><input id="crn" type="text" placeholder="Vídeo UGC Depoimento"></div>
+      <div class="fg"><label>Formato</label><select id="crt"><option value="🎬">🎬 Vídeo</option><option value="🖼">🖼 Carrossel</option><option value="📸">📸 Imagem</option><option value="⚡">⚡ Reels</option><option value="🛍">🛍 Catálogo</option></select></div>
+      <div class="fg"><label>CTR %</label><input id="crctr" type="number" inputmode="decimal" placeholder="4.1"></div>
+      <div class="fg"><label>CPA R$</label><input id="crcpa" type="number" inputmode="decimal" placeholder="26"></div>
+      <div class="fg"><label>ROAS</label><input id="crroas" type="number" inputmode="decimal" placeholder="6.2" step="0.1"></div>
+      <div class="fg"><label>Frequência</label><input id="crfreq" type="number" inputmode="decimal" placeholder="1.8" step="0.1"></div>
+      <div class="fg"><label>Impressões</label><input id="crimp" type="number" inputmode="numeric" placeholder="120000"></div>
+      <div class="fg"><label>Cliques</label><input id="crcli" type="number" inputmode="numeric" placeholder="4920"></div>
+    </div>
+    <div class="macts"><button class="bc" onclick="closeM('mcriativo')">Cancelar</button><button class="bs" onclick="addCriat()">✓ Adicionar</button></div>
+  </div>
+</div>
+
+<div class="mover" id="mpublico">
+  <div class="modal">
+    <div class="mhnd"></div><h2>👥 Novo Público</h2><div class="msub">Inserção manual</div>
+    <div class="fgrid">
+      <div class="fg full"><label>Nome</label><input id="pn" type="text" placeholder="LAL 2% Compradores 180d"></div>
+      <div class="fg"><label>Tipo</label><select id="pt"><option value="custom">Custom</option><option value="lal">Lookalike</option><option value="interest">Interesses</option></select></div>
+      <div class="fg"><label>Tamanho</label><input id="ptam" type="text" placeholder="450.000 pessoas"></div>
+      <div class="fg"><label>CPA R$</label><input id="pcpa" type="number" inputmode="decimal" placeholder="32.10"></div>
+      <div class="fg"><label>ROAS</label><input id="proas" type="number" inputmode="decimal" placeholder="5.6" step="0.1"></div>
+      <div class="fg"><label>CTR %</label><input id="pctr" type="number" inputmode="decimal" placeholder="3.2"></div>
+    </div>
+    <div class="macts"><button class="bc" onclick="closeM('mpublico')">Cancelar</button><button class="bs" onclick="addPub()">✓ Adicionar</button></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════
+// CONSTANTS & DB
+// ════════════════════════════════════════════════
+const ADM='lowticket10k@gmail.com';
+const GV='v19.0';
+const GRAPH=`https://graph.facebook.com/${GV}`;
+const db={
+  g:k=>{try{return JSON.parse(localStorage.getItem('ma_'+k));}catch{return null;}},
+  s:(k,v)=>localStorage.setItem('ma_'+k,JSON.stringify(v)),
+  d:k=>localStorage.removeItem('ma_'+k)
+};
+
+// ════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════
+let CU=null,CP=14;
+let _D={},_C=[],_CR=[],_P=[];
+let _RC=null,_AC=null;
+let _apiOn=false,_tok='',_accId='',_accName='',_accs=[];
+
+// ════════════════════════════════════════════════
+// AUTH
+// ════════════════════════════════════════════════
+function initDB(){
+  const u=db.g('users')||{};
+  if(!u[ADM]){u[ADM]={name:'Administrador',email:ADM,pass:'admin123',role:'admin',created:new Date().toISOString()};db.s('users',u);}
+}
+function showTab(t){
+  ['login','register','reset'].forEach(x=>document.getElementById('tab-'+x).style.display=x===t?'flex':'none');
+  document.querySelectorAll('.atab').forEach((el,i)=>el.classList.toggle('on',['login','register','reset'][i]===t));
+  ['lerr','rerr','rok','rserr','rsok'].forEach(id=>{const el=document.getElementById(id);if(el){el.style.display='none';el.textContent='';}});
+}
+const E=(id,m)=>{const el=document.getElementById(id);el.textContent=m;el.style.display='block';};
+const OK=(id,m)=>{const el=document.getElementById(id);el.textContent=m;el.style.display='block';};
+function doLogin(){
+  const e=gv('le').toLowerCase(),p=gv('lp');
+  if(!e||!p)return E('lerr','Preencha e-mail e senha.');
+  const u=(db.g('users')||{})[e];
+  if(!u)return E('lerr','E-mail não encontrado.');
+  if(u.pass!==p)return E('lerr','Senha incorreta.');
+  CU=u;db.s('session',{email:e,login:new Date().toISOString()});
+  const us=db.g('users');us[e].lastAccess=new Date().toISOString();db.s('users',us);
+  enterApp();
+}
+function doReg(){
+  const n=gv('rn'),e=gv('re').toLowerCase(),p=gv('rp'),p2=gv('rp2');
+  if(!n||!e||!p)return E('rerr','Preencha todos os campos.');
+  if(p.length<6)return E('rerr','Senha mínima: 6 caracteres.');
+  if(p!==p2)return E('rerr','Senhas não coincidem.');
+  if(e===ADM)return E('rerr','E-mail reservado.');
+  const us=db.g('users')||{};
+  if(us[e])return E('rerr','E-mail já cadastrado.');
+  us[e]={name:n,email:e,pass:p,role:'user',created:new Date().toISOString()};db.s('users',us);
+  OK('rok','✓ Conta criada! Faça login agora.');
+  setTimeout(()=>showTab('login'),1500);
+}
+function doReset(){
+  const e=gv('rse').toLowerCase();
+  if(!e)return E('rserr','Informe o e-mail.');
+  const us=db.g('users')||{};
+  if(!us[e])return E('rserr','E-mail não encontrado.');
+  const t='Tmp'+Math.random().toString(36).substring(2,8).toUpperCase();
+  us[e].pass=t;db.s('users',us);
+  OK('rsok',`✓ Nova senha temporária:\n${t}\nAnote e faça login.`);
+}
+function doLogout(){
+  CU=null;db.d('session');
+  document.getElementById('app').style.display='none';
+  document.getElementById('authWrap').style.display='flex';
+  document.getElementById('le').value='';document.getElementById('lp').value='';
+}
+function enterApp(){
+  document.getElementById('authWrap').style.display='none';
+  document.getElementById('app').style.display='flex';
+  const isAdm=CU.email===ADM;
+  document.getElementById('admTag').style.display=isAdm?'inline-flex':'none';
+  document.getElementById('ni-adm').style.display=isAdm?'flex':'none';
+  loadAPIState();loadUserData();
+  if(isAdm)refreshAdm();
+}
+
+// ════════════════════════════════════════════════
+// META ADS API MODULE
+// ════════════════════════════════════════════════
+const P2P={1:'today',7:'last_7d',14:'last_14d',30:'last_30d',0:'maximum'};
+
+async function gFetch(ep,tok){
+  const url=`${GRAPH}${ep}${ep.includes('?')?'&':'?'}access_token=${tok}`;
+  const r=await fetch(url);
+  const d=await r.json();
+  if(d.error)throw new Error(d.error.message||d.error.type||'Erro desconhecido');
+  return d;
+}
+
+// Extract action value from Meta actions array
+function gAct(acts,types){
+  if(!acts)return 0;
+  const arr=Array.isArray(types)?types:[types];
+  for(const t of arr){const a=acts.find(x=>x.action_type===t);if(a)return parseFloat(a.value)||0;}
+  return 0;
+}
+// Revenue from action_values
+function gRev(avs){
+  const t=['purchase','omni_purchase','offsite_conversion.fb_pixel_purchase'];
+  if(!avs)return 0;
+  for(const type of t){const a=avs.find(x=>x.action_type===type);if(a)return parseFloat(a.value)||0;}
+  return 0;
+}
+// Purchases from actions
+function gPurch(acts){
+  return gAct(acts,['purchase','omni_purchase','offsite_conversion.fb_pixel_purchase']);
+}
+
+function parseInsight(ins,metaRoasGoal){
+  const spend=parseFloat(ins.spend||0);
+  const imp=parseInt(ins.impressions||0);
+  const cli=parseInt(ins.clicks||0);
+  const reach=parseInt(ins.reach||0);
+  const freq=parseFloat(ins.frequency||0);
+  const cpm=parseFloat(ins.cpm||0);
+  const ctr=parseFloat(ins.ctr||0);
+  const purchases=gPurch(ins.actions);
+  const atc=gAct(ins.actions,['add_to_cart','omni_add_to_cart']);
+  let rev=gRev(ins.action_values);
+  // Fallback to ROAS field
+  if(rev===0&&ins.purchase_roas&&ins.purchase_roas.length)
+    rev=spend*parseFloat(ins.purchase_roas[0].value||0);
+  const roas=spend>0?rev/spend:0;
+  const cpa=purchases>0?spend/purchases:0;
+  const ticket=purchases>0?rev/purchases:0;
+  return{invest:spend,receita:rev,cpa,metaRoas:metaRoasGoal||4,ctr,cpm,imp,cliques:cli,cart:atc,compras:purchases,alcance:reach,freq,c1d:0,c7d:0,v1d:0,ticket,roas,source:'api',savedAt:new Date().toISOString(),period:CP};
+}
+
+function parseCampaignInsight(c){
+  const spend=parseFloat(c.spend||0);
+  const purchases=gPurch(c.actions);
+  let rev=gRev(c.action_values);
+  if(rev===0&&c.purchase_roas&&c.purchase_roas.length)rev=spend*parseFloat(c.purchase_roas[0].value||0);
+  const roas=spend>0?rev/spend:0;
+  const cpa=purchases>0?spend/purchases:0;
+  const freq=parseFloat(c.frequency||0);
+  const st=c.campaign_status;
+  const status=st==='ACTIVE'?'on':st==='PAUSED'?'off':'paus';
+  return{nome:c.campaign_name||'Campanha',tipo:'API · '+(c.objective||'Conversões'),status,invest:spend,cpa,roas,freq,period:CP,id:c.campaign_id||Date.now(),source:'api'};
+}
+
+function parseAdInsight(ad){
+  const spend=parseFloat(ad.spend||0);
+  const purchases=gPurch(ad.actions);
+  let rev=gRev(ad.action_values);
+  if(rev===0&&ad.purchase_roas&&ad.purchase_roas.length)rev=spend*parseFloat(ad.purchase_roas[0].value||0);
+  const roas=spend>0?rev/spend:0;
+  const cpa=purchases>0?spend/purchases:0;
+  const n=(ad.ad_name||'').toLowerCase();
+  const tipo=n.includes('video')||n.includes('vídeo')?'🎬':n.includes('carrossel')?'🖼':n.includes('reels')||n.includes('reel')?'⚡':n.includes('catálogo')||n.includes('catalog')?'🛍':'📸';
+  return{nome:ad.ad_name||'Anúncio',tipo,ctr:parseFloat(ad.ctr||0),cpa,roas,freq:parseFloat(ad.frequency||1),imp:parseInt(ad.impressions||0),cli:parseInt(ad.clicks||0),period:CP,id:ad.ad_id||Date.now(),source:'api'};
+}
+
+function loadAPIState(){
+  const s=db.g('api_'+CU.email);
+  if(s&&s.token){_tok=s.token;_accId=s.accId||'';_accName=s.accName||'';_accs=s.accs||[];_apiOn=true;showAPIConn();}
+}
+function saveAPIState(){db.s('api_'+CU.email,{token:_tok,accId:_accId,accName:_accName,accs:_accs});}
+
+function showAPIConn(){
+  document.getElementById('apiSetup').style.display='none';
+  document.getElementById('apiConn').style.display='block';
+  document.getElementById('apiBar').classList.add('show');
+  document.getElementById('apiBtnHdr').style.display='inline-flex';
+  document.getElementById('apiBarAcc').textContent=_accName||_accId||'—';
+  document.getElementById('apiAccNm').textContent=_accName||_accId||'—';
+  const ls=db.g('api_ls_'+CU.email);
+  document.getElementById('apiLS').textContent=ls?new Date(ls).toLocaleString('pt-BR'):'Nunca';
+  renderAPIAccs();
+}
+
+function renderAPIAccs(){
+  const el=document.getElementById('apiAccList');
+  if(!_accs.length){el.innerHTML='<div class="empty"><div class="ei">📋</div><p>Nenhuma conta encontrada.</p></div>';return;}
+  el.innerHTML=_accs.map(a=>`
+    <div class="api-acc ${a.id===_accId?'sel':''}" onclick="selAcc('${a.id}','${(a.name||'').replace(/'/g,"\\'")}')">
+      <div><div class="api-acc-n">${a.name||a.id}</div><div class="api-acc-id">${a.id} · ${a.currency||'BRL'}</div></div>
+      <div class="api-acc-chk">✓</div>
+    </div>`).join('');
+}
+
+function selAcc(id,name){
+  _accId=id;_accName=name;
+  document.getElementById('apiBarAcc').textContent=name;
+  document.getElementById('apiAccNm').textContent=name;
+  saveAPIState();renderAPIAccs();syncNow();
+}
+
+async function connectAPI(){
+  const tok=document.getElementById('apiTokInp').value.trim();
+  if(!tok||tok.length<20){showApiErr('apiConnErr','Token inválido. Cole o token completo do Graph Explorer.');return;}
+  const errEl=document.getElementById('apiConnErr');errEl.style.display='none';
+  const btn=document.getElementById('apiConnBtn');
+  btn.innerHTML='<div class="spinner" style="width:18px;height:18px;border-width:2px"></div> Verificando...';
+  btn.disabled=true;
+  try{
+    // Validate token
+    await gFetch('/me?fields=id,name',tok);
+    // Fetch ad accounts
+    const accsRes=await gFetch('/me/adaccounts?fields=id,name,account_status,currency&limit=25',tok);
+    _tok=tok;
+    _accs=(accsRes.data||[]).map(a=>({id:a.id,name:a.name,currency:a.currency}));
+    if(_accs.length){_accId=_accs[0].id;_accName=_accs[0].name;}
+    _apiOn=true;saveAPIState();showAPIConn();
+    // Auto-sync
+    syncNow();
+  }catch(err){
+    showApiErr('apiConnErr','❌ Erro ao conectar:\n'+err.message+'\n\nVerifique:\n• Token tem permissões ads_read + ads_management\n• Token não expirou\n• Conta tem acesso a campanhas');
+  }
+  btn.innerHTML='<span>🔗</span> Conectar à API Meta Ads';btn.disabled=false;
+}
+
+function showApiErr(id,m){const el=document.getElementById(id);if(el){el.textContent=m;el.style.display='block';}}
+function hideApiErr(id){const el=document.getElementById(id);if(el)el.style.display='none';}
+
+async function syncNow(){
+  if(!_apiOn||!_tok||!_accId)return;
+  const sw=document.getElementById('apiSyncWrap');
+  const se=document.getElementById('apiSyncErr');
+  sw.style.display='block';se.style.display='none';
+  const msg=m=>document.getElementById('apiSyncTxt').textContent=m;
+
+  try{
+    const preset=P2P[CP]||'last_14d';
+    const accId=_accId;
+
+    // ── 1. Account-level insights (KPIs) ──
+    msg('Buscando métricas da conta...');
+    const insFields='spend,impressions,clicks,reach,frequency,cpm,ctr,actions,action_values,purchase_roas';
+    const insRes=await gFetch(`/${accId}/insights?fields=${insFields}&date_preset=${preset}&level=account`,_tok);
+    if(insRes.data&&insRes.data.length>0){
+      const parsed=parseInsight(insRes.data[0],4);
+      _D=parsed;db.s('dados_'+CU.email+'_'+CP,parsed);updateUI(parsed);
+    }
+
+    // ── 2. Campaign insights ──
+    msg('Buscando campanhas...');
+    const campF='campaign_name,campaign_id,campaign_status,spend,impressions,clicks,cpm,ctr,frequency,actions,action_values,purchase_roas,objective';
+    const campRes=await gFetch(`/${accId}/insights?fields=${campF}&date_preset=${preset}&level=campaign&limit=50`,_tok);
+    if(campRes.data){
+      const nc=campRes.data.map(c=>parseCampaignInsight(c));
+      // Merge: keep manual entries, replace API entries
+      _C=[..._C.filter(c=>c.source!=='api'&&c.source!=='demo'),...nc];
+      db.s('campanhas_'+CU.email,_C);renderCamps();
+    }
+
+    // ── 3. Ad-level insights (Criativos) ──
+    msg('Buscando criativos (anúncios)...');
+    const adF='ad_name,ad_id,spend,impressions,clicks,ctr,cpm,frequency,actions,action_values,purchase_roas';
+    const adRes=await gFetch(`/${accId}/insights?fields=${adF}&date_preset=${preset}&level=ad&limit=30`,_tok);
+    if(adRes.data){
+      const na=adRes.data.map(a=>parseAdInsight(a));
+      _CR=[..._CR.filter(c=>c.source!=='api'&&c.source!=='demo'),...na];
+      _CR.sort((a,b)=>b.roas-a.roas);
+      db.s('criativos_'+CU.email,_CR);renderCriat();
+    }
+
+    // ── 4. Daily breakdown for chart ──
+    msg('Buscando dados diários para o gráfico...');
+    const dayF='spend,actions,action_values,impressions';
+    const dayRes=await gFetch(`/${accId}/insights?fields=${dayF}&date_preset=${preset}&time_increment=1`,_tok);
+    if(dayRes.data&&dayRes.data.length>0){
+      const lbs=dayRes.data.map(d=>{
+        const dt=new Date(d.date_start+'T12:00:00');
+        return`${dt.getDate()}/${dt.getMonth()+1}`;
+      });
+      const sp=dayRes.data.map(d=>parseFloat(d.spend||0));
+      const rv=dayRes.data.map(d=>gRev(d.action_values));
+      buildChart(lbs,rv,sp);
+    }
+
+    // ── Done ──
+    db.s('api_ls_'+CU.email,new Date().toISOString());
+    document.getElementById('apiLS').textContent=new Date().toLocaleString('pt-BR');
+    document.getElementById('alertBar').style.display='none';
+    msg('✓ Dados sincronizados com sucesso!');
+    setTimeout(()=>sw.style.display='none',2500);
+
+  }catch(err){
+    sw.style.display='none';
+    showApiErr('apiSyncErr','❌ Erro na sincronização:\n'+err.message);
+    // If token expired
+    if(err.message.includes('expired')||err.message.includes('Invalid OAuth')||err.message.includes('OAuthException')){
+      showApiErr('apiSyncErr','❌ Token expirado ou inválido.\nGere um novo token no Graph API Explorer e reconecte.');
+    }
+  }
+}
+
+// ── DEMO MODE ──
+function demoMode(){
+  _tok='DEMO_TOKEN_2024';
+  _accId='act_demo_999';
+  _accName='Conta Demo — Meta Ads';
+  _accs=[{id:'act_demo_999',name:'Conta Demo — Meta Ads',currency:'BRL'}];
+  _apiOn=true;saveAPIState();showAPIConn();
+  _loadDemo();
+}
+
+function _loadDemo(){
+  const sw=document.getElementById('apiSyncWrap');sw.style.display='block';
+  const msg=m=>document.getElementById('apiSyncTxt').textContent=m;
+  msg('Carregando dados de demonstração...');
+  setTimeout(()=>{
+    // KPIs
+    const d={invest:24830,receita:118460,cpa:38.5,metaRoas:4,ctr:2.84,cpm:20.02,imp:1240000,cliques:35216,cart:6364,compras:645,alcance:480000,freq:2.7,c1d:210,c7d:380,v1d:55,ticket:183.65,roas:4.77,source:'demo',savedAt:new Date().toISOString(),period:CP};
+    _D=d;db.s('dados_'+CU.email+'_'+CP,d);updateUI(d);
+    // Campaigns
+    const cnames=['Prospecting LAL 2%','Remarketing 14d','Conversão Interesses','Carrinho Abandonado'];
+    const cst=['on','on','on','paus'];
+    const nc=cnames.map((nome,i)=>({nome,tipo:'Conversões · Demo · Feed',status:cst[i],invest:Math.round(24830/4*(0.7+Math.random()*.55)),cpa:25+Math.random()*30,roas:3+Math.random()*4,freq:1.2+Math.random()*3,period:CP,id:Date.now()+i,source:'demo'}));
+    _C=[..._C.filter(c=>c.source!=='demo'&&c.source!=='api'),...nc];
+    db.s('campanhas_'+CU.email,_C);renderCamps();
+    // Creatives
+    const anames=['Vídeo UGC Depoimento','Carrossel Produto 5x','Imagem Oferta Relâmpago','Reels Transformação','Catálogo Dinâmico'];
+    const atipos=['🎬','🖼','📸','⚡','🛍'];
+    const na=anames.map((nome,i)=>({nome,tipo:atipos[i],ctr:1.5+Math.random()*4,cpa:20+Math.random()*40,roas:2+Math.random()*6,freq:1+Math.random()*3,imp:Math.round(150000+Math.random()*450000),cli:Math.round(2000+Math.random()*14000),period:CP,id:Date.now()+i+20,source:'demo'}));
+    _CR=[..._CR.filter(c=>c.source!=='demo'&&c.source!=='api'),...na];
+    _CR.sort((a,b)=>b.roas-a.roas);
+    db.s('criativos_'+CU.email,_CR);renderCriat();
+    // Daily chart
+    const n=CP===0?30:CP===1?1:CP;
+    const lbs=Array.from({length:n},(_,i)=>{const dt=new Date();dt.setDate(dt.getDate()-n+i+1);return`${dt.getDate()}/${dt.getMonth()+1}`;});
+    const sp=Array.from({length:n},()=>Math.round(24830/n*(0.45+Math.random()*.95)));
+    const rv=sp.map(s=>Math.round(s*(3.2+Math.random()*2.8)));
+    buildChart(lbs,rv,sp);
+    // Finalize
+    db.s('api_ls_'+CU.email,new Date().toISOString());
+    document.getElementById('apiLS').textContent=new Date().toLocaleString('pt-BR');
+    document.getElementById('alertBar').style.display='none';
+    msg('✓ Modo Demo carregado!');
+    setTimeout(()=>sw.style.display='none',1500);
+  },1200);
+}
+
+function disconnectAPI(){
+  if(!confirm('Desconectar a API? Os dados já sincronizados serão mantidos.'))return;
+  _tok='';_accId='';_accName='';_accs=[];_apiOn=false;
+  db.d('api_'+CU.email);
+  document.getElementById('apiSetup').style.display='block';
+  document.getElementById('apiConn').style.display='none';
+  document.getElementById('apiBar').classList.remove('show');
+  document.getElementById('apiBtnHdr').style.display='none';
+  document.getElementById('apiTokInp').value='';
+  hideApiErr('apiConnErr');
+}
+
+// ════════════════════════════════════════════════
+// PERIODS
+// ════════════════════════════════════════════════
+function setPer(d,el){
+  CP=d;
+  document.querySelectorAll('.pb').forEach(b=>b.classList.remove('on'));el.classList.add('on');
+  const lbl=d===0?'Tempo máximo':d===1?'Hoje':`Últimos ${d} dias`;
+  document.getElementById('mper').textContent=`Período: ${lbl}`;
+  document.getElementById('clbl').textContent=`Evolução — ${lbl}`;
+  document.getElementById('ssub').innerHTML=`Tráfego Pago · ${lbl} <span class="ld">sync</span>`;
+  const s=db.g('dados_'+CU.email+'_'+CP);
+  if(s){_D=s;updateUI(s);}else clearUI();
+  renderCamps();renderCriat();renderPubs();
+  if(_apiOn)syncNow();
+}
+function clearUI(){
+  ['kv-inv','kv-rec','kv-roas','kv-cpa','kv-ctr','kv-cpm'].forEach(id=>st(id,'—'));
+  ['mi-imp','mi-cli','mi-com','mi-freq','mi-cpm','mi-alc'].forEach(id=>st(id,'—'));
+  ['fi','fcl','fca','fco'].forEach(id=>st(id,'—'));
+  ['ffc','ffa','ffp'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.width='0%';});
+}
+
+// ════════════════════════════════════════════════
+// MANUAL DATA
+// ════════════════════════════════════════════════
+function saveData(){
+  const d={
+    empresa:gv('ie'),contaid:gv('iid'),
+    invest:nv('iinv'),receita:nv('irec'),cpa:nv('icpa'),metaRoas:nv('imroas')||4,
+    ctr:nv('ictr'),cpm:nv('icpm'),imp:nv('iimp'),cliques:nv('icli'),cart:nv('iatc'),
+    compras:nv('icom'),alcance:nv('ialc'),freq:nv('ifreq'),
+    c1d:nv('ic1d'),c7d:nv('ic7d'),v1d:nv('iv1d'),ticket:nv('itk'),
+    period:CP,source:'manual',savedAt:new Date().toISOString()
+  };
+  d.roas=d.invest>0?d.receita/d.invest:0;
+  db.s('dados_'+CU.email+'_'+CP,d);_D=d;updateUI(d);closeM('mdados');
+  document.getElementById('alertBar').style.display='none';
+}
+const gv=id=>document.getElementById(id)?.value.trim()||'';
+const nv=id=>+document.getElementById(id)?.value||0;
+
+function loadUserData(){
+  const s=db.g('dados_'+CU.email+'_'+CP);
+  if(s){_D=s;updateUI(s);}
+  _C=db.g('campanhas_'+CU.email)||[];
+  _CR=db.g('criativos_'+CU.email)||[];
+  _P=db.g('publicos_'+CU.email)||[];
+  renderCamps();renderCriat();renderPubs();
+}
+
+// ════════════════════════════════════════════════
+// UI UPDATE
+// ════════════════════════════════════════════════
+const st=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+
+function updateUI(d){
+  if(!d.invest)return;
+  const srcTag=d.source==='api'?'<span class="tag tag-api">⚡ API</span>':d.source==='demo'?'<span class="tag tag-demo">🧪 Demo</span>':'<span class="tag tag-manual">✏ Manual</span>';
+  const cs=document.getElementById('csrc');if(cs)cs.innerHTML=srcTag;
+
+  st('kv-inv','R$ '+fmt(d.invest));
+  st('kv-rec','R$ '+fmt(d.receita));
+  st('kv-roas',(d.roas||0).toFixed(2)+'x');
+  st('kv-cpa','R$ '+d.cpa.toFixed(2).replace('.',','));
+  st('kv-ctr',d.ctr.toFixed(2)+'%');
+  st('kv-cpm','R$ '+d.cpm.toFixed(2).replace('.',','));
+
+  // Deltas
+  setDlt('d-roas',d.roas,d.metaRoas||4);
+  setDlt('d-ctr',d.ctr,2.5);
+  const di=document.getElementById('d-inv');if(di){di.className='dlt wn';di.textContent='período';}
+  const dr=document.getElementById('d-rec');if(dr){dr.className='dlt up';dr.textContent='▲ ROAS';}
+  st('kc-inv','Total no período');
+  st('kc-roas',`Meta ${d.metaRoas||4}x · ${d.roas>=(d.metaRoas||4)?'✓':'✗'}`);
+
+  // Entrega
+  st('mi-imp',fmtK(d.imp));st('mi-cli',fmt(d.cliques));st('mi-com',fmt(d.compras));
+  st('mi-freq',d.freq.toFixed(1)+'x');st('mi-cpm','R$ '+d.cpm.toFixed(2).replace('.',','));st('mi-alc',fmtK(d.alcance));
+  const mf=document.getElementById('mi-freq');
+  if(mf)mf.style.color=d.freq>5?'var(--red)':d.freq>3.5?'var(--amb)':'var(--grn)';
+
+  // Funnel
+  if(d.imp>0){
+    st('fi',fmt(d.imp));st('fcl',fmt(d.cliques));st('fca',fmt(d.cart));st('fco',fmt(d.compras));
+    const cP=(d.cliques/d.imp*100).toFixed(2);
+    const aP=d.cliques>0?(d.cart/d.cliques*100).toFixed(1):0;
+    const cvP=d.cart>0?(d.compras/d.cart*100).toFixed(1):0;
+    st('fctr','↓ CTR '+cP+'%');st('fatc','↓ ATC '+aP+'%');st('fconv','↓ Conv '+cvP+'%');
+    st('fcl-p',cP+'%');
+    st('fca-p',(d.imp>0?(d.cart/d.imp*100).toFixed(3):0)+'%');
+    st('fco-p',(d.imp>0?(d.compras/d.imp*100).toFixed(4):0)+'%');
+    document.getElementById('ffc').style.width=(d.cliques/d.imp*100).toFixed(1)+'%';
+    document.getElementById('ffa').style.width=(d.cart/d.imp*100).toFixed(1)+'%';
+    document.getElementById('ffp').style.width=(d.compras/d.imp*100).toFixed(1)+'%';
+  }
+
+  // Atribuição
+  st('at-c1d',fmt(d.c1d)+' compras');st('at-c7d',fmt(d.c7d)+' compras');st('at-v1d',fmt(d.v1d)+' compras');
+  st('at-tk','R$ '+(d.ticket||0).toFixed(2).replace('.',','));
+  buildAtribChart(d);
+  buildRelatorio(d);
+  buildMainChart(d);
+}
+
+function setDlt(id,val,ref){
+  const el=document.getElementById(id);if(!el)return;
+  const ok=val>=ref;
+  el.className='dlt '+(ok?'up':'dn');
+  el.textContent=(ok?'▲ ':'▼ ')+val.toFixed(2);
+}
+
+// ════════════════════════════════════════════════
+// CHARTS
+// ════════════════════════════════════════════════
+function buildMainChart(d){
+  if(_RC){_RC.destroy();_RC=null;}
+  const n=CP===0?30:CP===1?24:CP;
+  const lbs=CP===1?Array.from({length:n},(_,i)=>i+'h'):Array.from({length:n},(_,i)=>`D${i+1}`);
+  function gen(total){let a=[],s=0;for(let i=0;i<n-1;i++){const v=Math.round(total/n*(0.45+Math.random()*.95));a.push(v);s+=v;}a.push(Math.max(0,total-s));return a;}
+  buildChart(lbs,gen(d.receita||0),gen(d.invest||0));
+}
+
+function buildChart(lbs,rev,sp){
+  if(_RC){_RC.destroy();_RC=null;}
+  const ctx=document.getElementById('RC').getContext('2d');
+  const gR=ctx.createLinearGradient(0,0,0,170);gR.addColorStop(0,'rgba(24,119,242,0.3)');gR.addColorStop(1,'rgba(24,119,242,0)');
+  const gS=ctx.createLinearGradient(0,0,0,170);gS.addColorStop(0,'rgba(167,139,250,0.2)');gS.addColorStop(1,'rgba(167,139,250,0)');
+  _RC=new Chart(ctx,{
+    type:'line',
+    data:{labels:lbs,datasets:[
+      {label:'Receita',data:rev,borderColor:'#1877f2',backgroundColor:gR,borderWidth:2,pointRadius:0,fill:true,tension:0.4},
+      {label:'Invest.',data:sp,borderColor:'#a78bfa',backgroundColor:gS,borderWidth:2,pointRadius:0,fill:true,tension:0.4,yAxisID:'y2'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#162032',borderColor:'rgba(24,119,242,0.3)',borderWidth:1,bodyColor:'#eef2ff',padding:8,callbacks:{label:c=>` ${c.dataset.label}: R$ ${fmt(c.raw)}`}}},
+      scales:{x:{grid:{display:false},ticks:{color:'#2e3d5c',font:{family:'IBM Plex Mono',size:7},maxTicksLimit:7}},
+              y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#2e3d5c',font:{family:'IBM Plex Mono',size:7},callback:v=>'R$'+(v/1000).toFixed(0)+'k',maxTicksLimit:4}},
+              y2:{position:'right',grid:{display:false},ticks:{color:'#2e3d5c',font:{family:'IBM Plex Mono',size:7},callback:v=>'R$'+(v/1000).toFixed(1)+'k',maxTicksLimit:4}}}}
+  });
+}
+
+function buildAtribChart(d){
+  if(_AC){_AC.destroy();_AC=null;}
+  const ctx=document.getElementById('AC').getContext('2d');
+  _AC=new Chart(ctx,{type:'bar',data:{labels:['Clique 1d','Clique 7d','Visual. 1d'],datasets:[{data:[d.c1d||0,d.c7d||0,d.v1d||0],backgroundColor:['#1877f2','#a78bfa','#22d07a'],borderRadius:5,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#162032',borderColor:'rgba(24,119,242,0.3)',borderWidth:1,bodyColor:'#eef2ff',padding:8}},
+      scales:{x:{grid:{display:false},ticks:{color:'#2e3d5c',font:{family:'IBM Plex Mono',size:8}}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#2e3d5c',font:{family:'IBM Plex Mono',size:8}}}}}});
+}
+
+function buildRelatorio(d){
+  if(!d.invest)return;
+  const roas=(d.receita/d.invest).toFixed(2);
+  const pLbl=CP===0?'Tempo máximo':CP===1?'Hoje':`Últimos ${CP} dias`;
+  const srcLbl=d.source==='api'?' · ⚡ API':d.source==='demo'?' · 🧪 Demo':' · ✏ Manual';
+  st('rel-per',pLbl+' · '+new Date(d.savedAt).toLocaleDateString('pt-BR')+srcLbl);
+  document.getElementById('rel-body').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${[
+    ['💰 Invest','R$ '+fmt(d.invest),''],
+    ['📈 Receita','R$ '+fmt(d.receita),'color:var(--grn)'],
+    ['🎯 ROAS',roas+'x',+roas>=(d.metaRoas||4)?'color:var(--grn)':'color:var(--red)'],
+    ['🛒 Compras',fmt(d.compras),''],
+    ['👁 Impressões',fmtK(d.imp),''],
+    ['🖱 Cliques',fmt(d.cliques),''],
+    ['💡 CPA','R$ '+d.cpa.toFixed(2).replace('.',','),''],
+    ['📊 CTR',d.ctr.toFixed(2)+'%',d.ctr>=2.5?'color:var(--grn)':'color:var(--amb)']
+  ].map(([l,v,s])=>`<div style="background:var(--sur);border-radius:8px;padding:10px"><div style="font-family:var(--mono);font-size:8px;color:var(--t2);margin-bottom:4px">${l}</div><div style="font-family:var(--mono);font-size:13px;font-weight:500;${s}">${v}</div></div>`).join('')}</div>`;
+}
+
+// ════════════════════════════════════════════════
+// CAMPAIGNS / CREATIVES / AUDIENCES
+// ════════════════════════════════════════════════
+function addCamp(){
+  const nome=gv('cn');if(!nome)return alert('Informe o nome.');
+  _C.push({nome,tipo:gv('ct'),status:gv('cs'),invest:nv('cinv'),cpa:nv('ccpa'),roas:nv('croas'),freq:nv('cfreq'),period:CP,id:Date.now(),source:'manual'});
+  db.s('campanhas_'+CU.email,_C);renderCamps();closeM('mcampanha');
+  ['cn','ct','cinv','ccpa','croas','cfreq'].forEach(id=>document.getElementById(id).value='');
+}
+
+const bgM={'🎬':'rgba(24,119,242,0.15)','🖼':'rgba(167,139,250,0.15)','📸':'rgba(34,208,122,0.15)','⚡':'rgba(255,183,64,0.15)','🛍':'rgba(255,92,92,0.15)'};
+
+function addCriat(){
+  const nome=gv('crn');if(!nome)return alert('Informe o nome.');
+  _CR.push({nome,tipo:gv('crt'),ctr:nv('crctr'),cpa:nv('crcpa'),roas:nv('crroas'),freq:nv('crfreq'),imp:nv('crimp'),cli:nv('crcli'),period:CP,id:Date.now(),source:'manual'});
+  _CR.sort((a,b)=>b.roas-a.roas);db.s('criativos_'+CU.email,_CR);renderCriat();closeM('mcriativo');
+  ['crn','crctr','crcpa','crroas','crfreq','crimp','crcli'].forEach(id=>document.getElementById(id).value='');
+}
+
+const pillM={custom:['Custom','p-c'],lal:['LAL','p-l'],interest:['Interesses','p-i']};
+
+function addPub(){
+  const nome=gv('pn');if(!nome)return alert('Informe o nome.');
+  _P.push({nome,tipo:gv('pt'),tamanho:gv('ptam'),cpa:nv('pcpa'),roas:nv('proas'),ctr:nv('pctr'),period:CP,id:Date.now()});
+  db.s('publicos_'+CU.email,_P);renderPubs();closeM('mpublico');
+  ['pn','ptam','pcpa','proas','pctr'].forEach(id=>document.getElementById(id).value='');
+}
+
+function renderCamps(){
+  const camp=_C.filter(c=>CP===0||c.period===CP||!c.period);
+  const tbody=document.getElementById('campBody');
+  if(!camp.length){tbody.innerHTML='<tr><td colspan="3"><div class="empty"><div class="ei">📋</div><p>Nenhuma campanha.</p></div></td></tr>';renderFreq([]);return;}
+  const maxR=Math.max(...camp.map(c=>c.roas),1);
+  tbody.innerHTML=camp.map(c=>`<tr>
+    <td><div class="cn">${c.nome}${c.source==='api'?'<span class="tag tag-api" style="margin-left:4px">API</span>':c.source==='demo'?'<span class="tag tag-demo" style="margin-left:4px">Demo</span>':''}</div>
+    <div class="ct">${c.tipo||'—'}</div>
+    <span class="sdot s-${c.status}"></span><span style="font-size:9px;color:var(--${c.status==='on'?'grn':c.status==='paus'?'amb':'t2'})">${c.status==='on'?'Ativo':c.status==='paus'?'Atenção':'Pausado'}</span></td>
+    <td class="mc">R$ ${c.cpa.toFixed(2).replace('.',',')}</td>
+    <td><div class="rr"><div class="rt"><div class="rf" style="width:${(c.roas/maxR*100).toFixed(0)}%"></div></div><div class="rv">${c.roas.toFixed(1)}x</div></div></td>
+  </tr>`).join('');
+  renderFreq(camp);
+}
+
+function renderCriat(){
+  const list=_CR.filter(c=>CP===0||c.period===CP||!c.period);
+  const el=document.getElementById('crList');
+  if(!list.length){el.innerHTML='<div class="empty"><div class="ei">🎨</div><p>Nenhum criativo.</p></div>';return;}
+  el.innerHTML=list.map((c,i)=>`<div class="crc">
+    <div class="crth" style="background:${bgM[c.tipo]||'rgba(24,119,242,0.15)'}">${c.tipo}</div>
+    <div class="cri"><div class="crn">#${i+1} ${c.nome}${c.source==='api'?'<span class="tag tag-api" style="margin-left:4px">API</span>':c.source==='demo'?'<span class="tag tag-demo" style="margin-left:4px">Demo</span>':''}</div>
+    <div class="crs"><span class="cst">CTR <strong>${c.ctr.toFixed(2)}%</strong></span><span class="cst">CPA <strong>R$${c.cpa.toFixed(0)}</strong></span><span class="cst">Freq <strong>${c.freq.toFixed(1)}x</strong></span></div></div>
+    <div class="crr">${c.roas.toFixed(1)}x</div>
+  </div>`).join('');
+}
+
+function renderPubs(){
+  const list=_P.filter(p=>CP===0||p.period===CP||!p.period);
+  const el=document.getElementById('audList');
+  if(!list.length){el.innerHTML='<div class="empty"><div class="ei">👥</div><p>Nenhum público.</p></div>';return;}
+  el.innerHTML=list.map(p=>{const[label,cls]=pillM[p.tipo]||['Custom','p-c'];return`<div class="ac">
+    <div class="ach"><div><div class="acn">${p.nome}</div><div class="acs">${p.tamanho}</div></div><span class="pill ${cls}">${label}</span></div>
+    <div class="am"><div class="amv"><div class="amval" style="color:var(--meta)">${p.roas.toFixed(1)}x</div><div class="amlbl">ROAS</div></div><div class="amv"><div class="amval">R$${p.cpa.toFixed(0)}</div><div class="amlbl">CPA</div></div><div class="amv"><div class="amval">${p.ctr.toFixed(2)}%</div><div class="amlbl">CTR</div></div></div>
+  </div>`;}).join('');
+}
+
+function renderFreq(camp){
+  const bars=document.getElementById('freqBars');
+  const alerts=document.getElementById('freqAlerts');
+  if(!camp||!camp.length){bars.innerHTML='<div class="empty"><div class="ei">📡</div><p>Adicione campanhas.</p></div>';if(alerts)alerts.innerHTML='';return;}
+  const maxF=Math.max(...camp.map(c=>c.freq||2),5);
+  bars.innerHTML=camp.map(c=>{const f=c.freq||0;const cor=f>5?'linear-gradient(90deg,var(--red),#ff8c8c)':f>3.5?'linear-gradient(90deg,var(--amb),#ffd580)':'linear-gradient(90deg,var(--meta),var(--pur))';
+    return`<div class="hbr"><span class="hbl">${c.nome.substring(0,12)}</span><div class="hbt"><div class="hbf" style="width:${(f/maxF*100).toFixed(0)}%;background:${cor}"></div></div><span class="hbn">${f.toFixed(1)}x</span></div>`;}).join('');
+  if(alerts)alerts.innerHTML=camp.filter(c=>c.freq>4).map(c=>`<div class="falt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span><strong>${c.nome}</strong> · freq ${c.freq.toFixed(1)} — expandir público ou pausar.</span></div>`).join('');
+}
+
+// ════════════════════════════════════════════════
+// ADMIN
+// ════════════════════════════════════════════════
+function refreshAdm(){
+  const us=db.g('users')||{};
+  const list=Object.values(us).filter(u=>u.email!==ADM);
+  st('stat-u',Object.keys(us).length+' usuários');
+  st('stat-d',new Date().toLocaleDateString('pt-BR'));
+  const el=document.getElementById('userList');
+  if(!list.length){el.innerHTML='<div class="empty"><div class="ei">👤</div><p>Nenhum usuário além do ADM.</p></div>';return;}
+  el.innerHTML=list.map(u=>`<div class="urow"><div class="ui"><div class="ue">${u.email}</div><div class="ur">${u.name} · ${u.role} · ${u.created?new Date(u.created).toLocaleDateString('pt-BR'):'—'}</div></div><button class="delbtn" onclick="delUser('${u.email}')">Remover</button></div>`).join('');
+}
+function delUser(e){
+  if(!confirm('Remover '+e+'?'))return;
+  const us=db.g('users')||{};delete us[e];db.s('users',us);refreshAdm();
+}
+function limparTudo(){
+  Object.keys(localStorage).filter(k=>k.startsWith('ma_')).forEach(k=>localStorage.removeItem(k));
+  initDB();doLogout();
+}
+
+// ════════════════════════════════════════════════
+// NAV / MODALS
+// ════════════════════════════════════════════════
+function navTo(id,el){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  if(el)el.classList.add('on');
+  document.querySelector('.sa').scrollTop=0;
+  if(id==='adm')refreshAdm();
+}
+function openM(id){document.getElementById(id).classList.add('open');}
+function closeM(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.mover').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+document.addEventListener('keydown',e=>{if(e.key==='Enter'){const lt=document.getElementById('tab-login');if(lt&&lt.style.display!=='none')doLogin();}});
+
+// ════════════════════════════════════════════════
+// EXPORTS
+// ════════════════════════════════════════════════
+function expCSV(){if(!_C.length)return alert('Sem campanhas.');let c='Campanha,Status,Investimento,CPA,ROAS,Frequência\n';_C.forEach(x=>{c+=`"${x.nome}","${x.status==='on'?'Ativo':'Pausado'}","${x.invest}","${x.cpa.toFixed(2)}","${x.roas.toFixed(2)}","${x.freq.toFixed(1)}"\n`;});dl('campanhas.csv',c,'text/csv');}
+function expFunil(){const d=_D;if(!d.imp)return alert('Sem dados de funil.');dl('funil.txt',`Funil de Vendas\n\nImpressões: ${fmt(d.imp)}\nCliques: ${fmt(d.cliques)}\nAdd to Cart: ${fmt(d.cart)}\nCompras: ${fmt(d.compras)}\n\nCTR: ${d.ctr.toFixed(2)}%\nCPA: R$ ${d.cpa.toFixed(2)}\nROAS: ${(d.roas||0).toFixed(2)}x`,'text/plain');}
+function expCriat(){if(!_CR.length)return alert('Sem criativos.');let c='Nome,Tipo,CTR,CPA,ROAS,Frequência\n';_CR.forEach(x=>{c+=`"${x.nome}","${x.tipo}","${x.ctr.toFixed(2)}","${x.cpa.toFixed(2)}","${x.roas.toFixed(2)}","${x.freq.toFixed(1)}"\n`;});dl('criativos.csv',c,'text/csv');}
+function expPub(){if(!_P.length)return alert('Sem públicos.');let c='Nome,Tipo,Tamanho,CPA,ROAS,CTR\n';_P.forEach(x=>{c+=`"${x.nome}","${x.tipo}","${x.tamanho}","${x.cpa.toFixed(2)}","${x.roas.toFixed(2)}","${x.ctr.toFixed(2)}"\n`;});dl('publicos.csv',c,'text/csv');}
+function dl(n,t,m){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:m}));a.download=n;a.click();}
+
+// ════════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════════
+function fmt(n){if(!n&&n!==0)return'—';return Number(n).toLocaleString('pt-BR');}
+function fmtK(n){if(!n)return'—';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1000)return(n/1000).toFixed(0)+'K';return fmt(n);}
+
+// ════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════
+initDB();
+const sess=db.g('session');
+if(sess&&sess.email){const us=db.g('users')||{};const u=us[sess.email];if(u){CU=u;enterApp();}}
+</script>
+<script>
+// ════════════════════════════════════════════════
+// PWA — Progressive Web App
+// ════════════════════════════════════════════════
+
+// 1. Inline Manifest (no separate file needed)
+(function(){
+  const manifest = {
+    name: "Meta Ads Dashboard",
+    short_name: "Meta Ads",
+    description: "Dashboard de tráfego pago Meta Ads",
+    start_url: "./",
+    display: "standalone",
+    background_color: "#07090f",
+    theme_color: "#07090f",
+    orientation: "portrait-primary",
+    icons: [
+      { src: _pwaIcon(192), sizes: "192x192", type: "image/png", purpose: "any maskable" },
+      { src: _pwaIcon(512), sizes: "512x512", type: "image/png", purpose: "any maskable" }
+    ]
+  };
+  function _pwaIcon(size) {
+    const c = document.createElement('canvas');
+    c.width = size; c.height = size;
+    const ctx = c.getContext('2d');
+    // Background
+    ctx.fillStyle = '#07090f';
+    ctx.fillRect(0, 0, size, size);
+    // Rounded rect background
+    const r = size * 0.22;
+    ctx.beginPath();
+    ctx.moveTo(r, 0); ctx.lineTo(size-r, 0);
+    ctx.quadraticCurveTo(size, 0, size, r);
+    ctx.lineTo(size, size-r);
+    ctx.quadraticCurveTo(size, size, size-r, size);
+    ctx.lineTo(r, size);
+    ctx.quadraticCurveTo(0, size, 0, size-r);
+    ctx.lineTo(0, r);
+    ctx.quadraticCurveTo(0, 0, r, 0);
+    ctx.closePath();
+    ctx.fillStyle = '#1877f2';
+    ctx.fill();
+    // Facebook f path scaled
+    const s = size / 192;
+    ctx.fillStyle = 'white';
+    ctx.beginPath();
+    // Simplified f shape
+    const cx = size * 0.5, cy = size * 0.5;
+    const fw = size * 0.28, fh = size * 0.52;
+    const stemW = size * 0.11;
+    // vertical stem
+    ctx.fillRect(cx - stemW/2, cy - fh/2, stemW, fh);
+    // top crossbar
+    ctx.fillRect(cx - fw/2, cy - fh/2, fw, stemW * 0.9);
+    // middle crossbar
+    ctx.fillRect(cx - fw/2 + stemW * 0.1, cy - stemW * 0.3, fw * 0.75, stemW * 0.85);
+    ctx.fill();
+    return c.toDataURL('image/png');
+  }
+  const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const link = document.getElementById('pwaManifest');
+  if(link) link.href = url;
+})();
+
+// 2. Service Worker (inline via Blob)
+if('serviceWorker' in navigator) {
+  const swCode = `
+const CACHE = 'meta-ads-v1';
+const ASSETS = ['./', './index.html'];
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS).catch(()=>{})));
+  self.skipWaiting();
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
+  self.clients.claim();
+});
+self.addEventListener('fetch', e => {
+  e.respondWith(fetch(e.request).catch(() => caches.match(e.request).then(r => r || new Response('Offline', {status:503}))));
+});
+  `;
+  const swBlob = new Blob([swCode], {type:'application/javascript'});
+  const swUrl = URL.createObjectURL(swBlob);
+  navigator.serviceWorker.register(swUrl).catch(()=>{});
+}
+
+// 3. Install prompt logic
+let _pwaPrompt = null;
+let _pwaInstalled = window.matchMedia('(display-mode: standalone)').matches
+                 || window.navigator.standalone === true;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _pwaPrompt = e;
+  _pwaUpdateInstallUI();
+});
+
+window.addEventListener('appinstalled', () => {
+  _pwaInstalled = true;
+  _pwaPrompt = null;
+  _pwaUpdateInstallUI();
+});
+
+function _isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+
+function _isFileProtocol() {
+  return location.protocol === 'file:';
+}
+
+function _pwaUpdateInstallUI() {
+  const installWrap   = document.getElementById('pwaInstallWrap');
+  const iosWrap       = document.getElementById('pwaIOSWrap');
+  const installedWrap = document.getElementById('pwaInstalledWrap');
+  const genericWrap   = document.getElementById('pwaGenericWrap');
+  const androidFileWrap = document.getElementById('pwaAndroidFileWrap');
+  const standardWrap  = document.getElementById('pwaStandardWrap');
+  if(!installWrap) return;
+  // Hide all
+  [installWrap, iosWrap, installedWrap, genericWrap].forEach(el => el && (el.style.display='none'));
+  if(androidFileWrap) androidFileWrap.style.display='none';
+  if(standardWrap) standardWrap.style.display='none';
+
+  if(_pwaInstalled) {
+    installedWrap.style.display = 'block';
+  } else if(_pwaPrompt) {
+    // Chrome served over HTTPS — show native install button
+    installWrap.style.display = 'block';
+  } else if(_isIOS()) {
+    // iPhone/iPad — show Safari steps
+    iosWrap.style.display = 'block';
+  } else if(_isFileProtocol()) {
+    // Android opening file:// directly — show hosting instructions
+    genericWrap.style.display = 'block';
+    if(androidFileWrap) androidFileWrap.style.display = 'block';
+    if(standardWrap) standardWrap.style.display = 'none';
+  } else {
+    // Served over HTTP/HTTPS but prompt not ready yet
+    genericWrap.style.display = 'block';
+    if(standardWrap) standardWrap.style.display = 'block';
+    if(androidFileWrap) androidFileWrap.style.display = 'none';
+  }
+}
+
+async function pwaTriggerInstall() {
+  if(!_pwaPrompt) return;
+  _pwaPrompt.prompt();
+  const {outcome} = await _pwaPrompt.userChoice;
+  if(outcome === 'accepted') {
+    _pwaInstalled = true;
+    _pwaPrompt = null;
+    _pwaUpdateInstallUI();
+  }
+}
+
+// Run on load
+window.addEventListener('load', () => {
+  setTimeout(_pwaUpdateInstallUI, 300);
+});
+// Also re-check when user navigates to API tab
+const _origNavTo = window.navTo;
+window.navTo = function(id, el) {
+  _origNavTo && _origNavTo(id, el);
+  if(id === 'api') setTimeout(_pwaUpdateInstallUI, 100);
+};
+</script>
+</body>
+</html>
